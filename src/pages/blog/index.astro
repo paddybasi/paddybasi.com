@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/PostCard.astro';
+import Icon from '../../components/Icon.astro';
+import { getPosts } from '../../lib/blog';
+import { resume } from '../../lib/resume';
+
+const posts = await getPosts();
+const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+
+<Layout title={`Blog · ${resume.basics.name}`} description="Notes from the field on Node.js, TypeScript, cloud platforms and shipping software for the UK public sector.">
+  <section class="relative isolate overflow-hidden px-6 pt-40 pb-16">
+    <div aria-hidden="true" class="absolute inset-0 -z-10">
+      <div class="animate-aurora absolute -top-40 left-1/4 size-[34rem] rounded-full bg-violet/20 blur-[120px]"></div>
+      <div class="animate-aurora absolute top-0 right-0 size-[28rem] rounded-full bg-cyan/15 blur-[120px] [animation-delay:-8s]"></div>
+    </div>
+    <div class="mx-auto max-w-6xl">
+      <p data-reveal class="eyebrow">Blog</p>
+      <h1 data-reveal style="--d:1" class="mt-4 font-display text-6xl font-extrabold tracking-tight sm:text-7xl">
+        Notes from <span class="text-gradient">the field.</span>
+      </h1>
+      <p data-reveal style="--d:2" class="mt-6 max-w-2xl text-lg text-muted">
+        Lessons from building and running real services: Node.js, TypeScript, cloud platforms, testing and the occasional look back.
+      </p>
+      <div data-reveal style="--d:3" class="mt-8 flex flex-wrap items-center gap-2">
+        {tags.map((t) => <span class="rounded-full border border-line px-3 py-1 font-mono text-xs text-muted">{t}</span>)}
+        <a href="/rss.xml" class="ml-2 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg">
+          <Icon name="rss" class="size-4" /> RSS
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="px-6 pb-28">
+    <div class="mx-auto grid max-w-6xl gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post, i) => <PostCard post={post} delay={i % 3} />)}
+    </div>
+  </section>
+</Layout>

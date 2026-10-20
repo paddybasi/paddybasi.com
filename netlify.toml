@@ -1,0 +1,29 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Astro 7 needs Node >= 22.22; keep in sync with .nvmrc and package.json engines.
+  NODE_VERSION = "22"
+
+# Security headers for every response.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Hashed build assets never change, so cache them forever.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Always serve the latest CV after a rebuild.
+[[headers]]
+  for = "/cv.pdf"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

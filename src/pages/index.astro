@@ -1,163 +1,313 @@
 ---
-import { getCollection } from "astro:content";
-import Layout from "@layouts/Layout.astro";
-import Header from "@components/Header.astro";
-import Footer from "@components/Footer.astro";
-import LinkButton from "@components/LinkButton.astro";
-import Hr from "@components/Hr.astro";
-import Card from "@components/Card";
-import Socials from "@components/Socials.astro";
-import getSortedPosts from "@utils/getSortedPosts";
-import { SOCIALS } from "@config";
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Icon from '../components/Icon.astro';
+import PostCard from '../components/PostCard.astro';
+import Experience from '../components/Experience';
+import SkillSphere from '../components/SkillSphere';
+import profileImg from '../assets/profile.png';
+import { getPosts } from '../lib/blog';
+import { dateRange, shortTag } from '../lib/format';
+import { cvFilename, derived, resume, topTags } from '../lib/resume';
 
-const posts = await getCollection("blog");
+const { basics, skills = [], education = [], interests = [] } = resume;
+const keywordCount = new Set(skills.flatMap((s) => s.keywords ?? [])).size;
+// Short, de-duplicated labels only; the cards below list everything.
+const sphereItems = [
+  ...new Map(skills.flatMap((s, group) => (s.keywords ?? []).map((k) => [shortTag(k), { label: shortTag(k), group }] as const))).values(),
+]
+  .filter((item) => item.label.length <= 14)
+  .slice(0, 48);
+const sphereLegend = ['text-violet', 'text-cyan', 'text-lime', 'text-fg'];
+const latestPosts = (await getPosts()).slice(0, 3);
 
-const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const stats = [
+  [`${derived.years}+`, 'years in software'],
+  [String(derived.work.length), 'roles & engagements'],
+  [String(derived.publicSector), 'UK public-sector bodies'],
+  [`${keywordCount}+`, 'technologies'],
+];
 
-const socialCount = SOCIALS.filter(social => social.active).length;
+const linkedin = derived.profile('linkedin');
 ---
 
 <Layout>
-  <Header />
-  <main id="main-content">
-    <section id="hero">
-      <h1>Mingalaba</h1>
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="rss-link"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon"
-          ><path
-            d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"
-          ></path><path
-            d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"
-          ></path><circle cx="6" cy="18" r="2"></circle>
-        </svg>
-        <span class="sr-only">RSS Feed</span>
-      </a>
+  <Hero />
 
-      <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
-      </p>
-      <p>
-        Read the blog posts or check
-        <LinkButton
-          className="underline decoration-dashed underline-offset-4 hover:text-skin-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
-      </p>
+  <!-- Stats -->
+  <section aria-label="At a glance" class="border-y border-line bg-ink-2/50">
+    <dl class="mx-auto grid max-w-6xl grid-cols-2 divide-line px-6 md:grid-cols-4 md:divide-x">
       {
-        // only display if at least one social link is enabled
-        socialCount > 0 && (
-          <div class="social-wrapper">
-            <div class="social-links">Social Links:</div>
-            <Socials />
+        stats.map(([value, label], i) => (
+          <div data-reveal style={`--d:${i}`} class="px-4 py-10 text-center">
+            <dt class="sr-only">{label}</dt>
+            <dd>
+              <span class="block font-display text-5xl font-extrabold tracking-tight text-gradient">{value}</span>
+              <span class="mt-2 block text-sm text-muted" aria-hidden="true">
+                {label}
+              </span>
+            </dd>
           </div>
-        )
+        ))
       }
-    </section>
+    </dl>
+  </section>
 
-    <Hr />
-
-    {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured">
-            <h2>Featured</h2>
-            <ul>
-              {featuredPosts.map(({ data, slug }) => (
-                <Card
-                  href={`/posts/${slug}`}
-                  frontmatter={data}
-                  secHeading={false}
-                />
-              ))}
-            </ul>
-          </section>
-          {recentPosts.length > 0 && <Hr />}
-        </>
-      )
-    }
-
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts">
-          <h2>Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              ({ data, slug }, index) =>
-                index < 4 && (
-                  <Card
-                    href={`/posts/${slug}`}
-                    frontmatter={data}
-                    secHeading={false}
-                  />
-                )
-            )}
+  <!-- Clients marquee -->
+  <section aria-label="Organisations worked with" class="group relative overflow-hidden py-10 [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
+    <div class="animate-marquee flex w-max gap-12 group-hover:[animation-play-state:paused]">
+      {
+        [0, 1].map((copy) => (
+          <ul class="flex shrink-0 gap-12" aria-hidden={copy === 1 ? 'true' : undefined}>
+            {derived.clients.map((c) => (
+              <li class="font-display text-2xl font-semibold whitespace-nowrap text-fg/30 transition hover:text-fg">{c}</li>
+            ))}
           </ul>
-        </section>
-      )
-    }
-
-    <div class="all-posts-btn-wrapper">
-      <LinkButton href="/posts">
-        All Posts
-        <svg xmlns="http://www.w3.org/2000/svg"
-          ><path
-            d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-          ></path>
-        </svg>
-      </LinkButton>
+        ))
+      }
     </div>
-  </main>
+  </section>
 
-  <Footer />
+  <!-- About -->
+  <section id="about" class="px-6 py-28">
+    <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.6fr]">
+      <div>
+        <div data-reveal>
+          <p class="eyebrow">About</p>
+          <h2 class="mt-4 font-display text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+            Hands-on engineer, <span class="text-gradient">architectural thinker.</span>
+          </h2>
+        </div>
+        <figure data-reveal style="--d:1" class="card mt-10 max-w-sm overflow-hidden p-3">
+          <div class="relative overflow-hidden rounded-[1.1rem]">
+            <Image src={profileImg} alt={`Portrait of ${basics.name}`} class="aspect-square w-full object-cover" widths={[360, 720]} sizes="(min-width: 1024px) 360px, 90vw" />
+            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent p-5 pt-16">
+              <p class="font-display text-xl font-bold">{basics.name}</p>
+              <p class="flex items-center gap-1.5 text-sm text-muted"><Icon name="pin" class="size-4" /> {derived.location}</p>
+            </div>
+          </div>
+        </figure>
+      </div>
+      <div data-reveal style="--d:1" class="space-y-6 text-lg leading-relaxed text-fg/80 lg:pt-4">
+        {basics.summary?.split(/(?<=\.)\s+(?=[A-Z])/).map((p) => <p>{p}</p>)}
+        {
+          interests.length > 0 && (
+            <div class="pt-4">
+              <p class="eyebrow mb-4 text-muted">Away from the keyboard</p>
+              <ul class="flex flex-wrap gap-2">
+                {interests.map((i) => (
+                  <li class="rounded-full border border-line px-3.5 py-1.5 text-sm text-muted">{i.name}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section id="skills" class="px-6 py-28">
+    <div class="mx-auto max-w-6xl">
+      <div class="grid items-center gap-10 lg:grid-cols-2">
+        <div data-reveal>
+          <p class="eyebrow">Toolkit</p>
+          <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">Across the whole stack.</h2>
+          <p class="mt-4 max-w-md text-muted">
+            {keywordCount}+ technologies used in production, from the browser to the cluster. Drag the sphere to explore.
+          </p>
+          <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {
+              skills.map((s, i) => (
+                <li class="flex items-center gap-2">
+                  <span class:list={['size-2.5 rounded-full bg-current', sphereLegend[i % sphereLegend.length]]} />
+                  {s.name}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div data-reveal style="--d:1" class="mx-auto w-full max-w-xl">
+          <SkillSphere client:visible items={sphereItems} />
+        </div>
+      </div>
+
+      <div class="mt-16 grid gap-5 md:grid-cols-2">
+        {
+          skills.map((s, i) => (
+            <article data-reveal style={`--d:${i}`} class="card p-8">
+              <div class="flex items-baseline justify-between gap-4">
+                <h3 class="font-display text-2xl font-bold">{s.name}</h3>
+                {s.level && <span class="font-mono text-xs text-lime">{s.level}</span>}
+              </div>
+              <ul class="mt-6 flex flex-wrap gap-2">
+                {s.keywords?.map((k) => (
+                  <li
+                    class:list={[
+                      'rounded-lg border px-3 py-1 text-sm',
+                      topTags.includes(k) ? 'border-cyan/30 bg-cyan/10 text-cyan' : 'border-line bg-fg/[0.02] text-fg/75',
+                    ]}
+                  >
+                    {k}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience" class="px-6 py-28">
+    <div class="mx-auto max-w-4xl">
+      <div data-reveal class="mb-10">
+        <p class="eyebrow">Experience</p>
+        <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          {derived.years} years of <span class="text-gradient">shipping real products.</span>
+        </h2>
+        <p class="mt-4 text-muted">Filter by technology to see where I've used it in production.</p>
+      </div>
+      <Experience client:visible work={derived.work} tags={topTags} />
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  {
+    derived.testimonials.length > 0 && (
+      <section id="testimonials" class="px-6 py-28">
+        <div class="mx-auto max-w-6xl">
+          <div data-reveal class="mb-14">
+            <p class="eyebrow">Kind words</p>
+            <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">What colleagues say.</h2>
+          </div>
+          <div class="columns-1 gap-5 md:columns-2 lg:columns-3">
+            {derived.testimonials.map((t, i) => (
+              <figure data-reveal style={`--d:${i % 3}`} class="card mb-5 break-inside-avoid p-8">
+                <Icon name="quote" class="size-8 text-violet" />
+                <blockquote class="mt-4 text-lg leading-relaxed text-fg/90">{t.quote}</blockquote>
+                <figcaption class="mt-6 border-t border-line pt-4">
+                  <p class="font-semibold">{t.name}</p>
+                  {t.role && <p class="text-sm text-muted">{t.role}</p>}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Latest writing -->
+  {
+    latestPosts.length > 0 && (
+      <section id="writing" class="px-6 py-28">
+        <div class="mx-auto max-w-6xl">
+          <div data-reveal class="mb-14 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p class="eyebrow">Writing</p>
+              <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">Notes from the field.</h2>
+            </div>
+            <a href="/blog" class="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 font-semibold transition hover:bg-fg/5">
+              All posts <Icon name="arrow" class="size-4" />
+            </a>
+          </div>
+          <div class="grid gap-5 md:grid-cols-3">
+            {latestPosts.map((post, i) => (
+              <PostCard post={post} delay={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Education -->
+  <section id="education" class="px-6 py-28">
+    <div class="mx-auto max-w-6xl">
+      <div data-reveal class="mb-14">
+        <p class="eyebrow">Education</p>
+        <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">Foundations.</h2>
+      </div>
+      <div class="grid gap-5 md:grid-cols-2">
+        {
+          education.map((e, i) => (
+            <article data-reveal style={`--d:${i}`} class:list={['card p-8', i === 0 && 'md:col-span-2 md:p-10']}>
+              <p class="font-mono text-xs text-cyan">{dateRange(e.startDate, e.endDate)}</p>
+              <h3 class:list={['mt-3 font-display font-bold', i === 0 ? 'text-3xl' : 'text-xl']}>
+                {[e.studyType, e.area].filter(Boolean).join(' · ')}
+                {e.score && <span class="ml-2 rounded-md bg-lime/15 px-2 py-0.5 align-middle font-mono text-sm text-lime">{e.score}</span>}
+              </h3>
+              <p class="mt-1 text-muted">
+                {e.url ? (
+                  <a href={e.url} target="_blank" rel="noopener" class="hover:text-fg">
+                    {e.institution}
+                  </a>
+                ) : (
+                  e.institution
+                )}
+              </p>
+              {!!e.courses?.length && (
+                <ul class:list={['mt-5 text-fg/75', i === 0 ? 'text-base' : 'flex flex-wrap gap-x-3 gap-y-1 text-sm']}>
+                  {e.courses.map((c) => (
+                    <li>{c}</li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="relative isolate overflow-hidden px-6 py-36">
+    <div aria-hidden="true" class="absolute inset-0 -z-10">
+      <div class="animate-aurora absolute top-1/4 left-1/4 size-[40rem] max-w-full rounded-full bg-gradient-to-tr from-violet/30 via-cyan/20 to-lime/20 blur-[120px]"></div>
+    </div>
+    <div data-reveal class="mx-auto max-w-4xl text-center">
+      <p class="eyebrow">Contact</p>
+      <h2 class="mt-6 font-display text-5xl font-extrabold tracking-tight text-balance sm:text-7xl">
+        Got a hard problem? <span class="text-gradient">Let's talk.</span>
+      </h2>
+      <p class="mx-auto mt-6 max-w-xl text-lg text-muted">
+        {derived.available ? 'I’m currently available for new contracts and roles.' : 'Always happy to hear about interesting projects.'}
+        {basics.location?.city && ` Based in ${basics.location.city}, working across the UK.`}
+      </p>
+      <div class="mt-12 flex flex-wrap justify-center gap-3">
+        {
+          basics.email && (
+            <a
+              href={`mailto:${basics.email}`}
+              class="inline-flex max-w-full items-center gap-2 rounded-full bg-fg px-7 py-4 font-semibold break-all text-ink transition hover:scale-[1.03] hover:bg-cyan"
+            >
+              <Icon name="mail" class="size-5 shrink-0" /> {basics.email}
+            </a>
+          )
+        }
+        <a
+          href="/cv.pdf"
+          download={cvFilename}
+          class="inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-7 py-4 font-semibold backdrop-blur transition hover:bg-fg/10"
+        >
+          <Icon name="download" /> Download CV
+        </a>
+        {
+          linkedin && (
+            <a
+              href={linkedin.url}
+              target="_blank"
+              rel="me noopener"
+              class="inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-7 py-4 font-semibold backdrop-blur transition hover:bg-fg/10"
+            >
+              <Icon name="linkedin" /> LinkedIn
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </section>
 </Layout>
-
-<style>
-  /* ===== Hero Section ===== */
-  #hero {
-    @apply pb-6 pt-8;
-  }
-  #hero h1 {
-    @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
-  }
-  #hero .rss-link {
-    @apply mb-6;
-  }
-  #hero .rss-icon {
-    @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
-  }
-  #hero p {
-    @apply my-2;
-  }
-  .social-wrapper {
-    @apply mt-4 flex flex-col sm:flex-row sm:items-center;
-  }
-  .social-links {
-    @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
-  }
-
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
-  #recent-posts {
-    @apply pb-6 pt-12;
-  }
-  #featured h2,
-  #recent-posts h2 {
-    @apply text-2xl font-semibold tracking-wide;
-  }
-  .all-posts-btn-wrapper {
-    @apply my-8 text-center;
-  }
-</style>
