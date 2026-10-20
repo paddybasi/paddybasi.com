@@ -8,7 +8,7 @@ function parse(date: string): { y: number; m: number } {
   return { y: Number(y), m: Number(m) };
 }
 
-function currentMonth(now: Date): string {
+export function currentMonth(now = new Date()): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 

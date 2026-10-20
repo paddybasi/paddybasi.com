@@ -9,7 +9,7 @@ import SkillSphere from '../components/SkillSphere';
 import profileImg from '../assets/profile.png';
 import { getPosts } from '../lib/blog';
 import { dateRange, shortTag } from '../lib/format';
-import { cvFilename, derived, resume, topTags } from '../lib/resume';
+import { cvFilename, derived, resume, skillStats, topTags } from '../lib/resume';
 
 const { basics, skills = [], education = [], interests = [] } = resume;
 const keywordCount = new Set(skills.flatMap((s) => s.keywords ?? [])).size;
@@ -70,7 +70,7 @@ const linkedin = derived.profile('linkedin');
   </section>
 
   <!-- About -->
-  <section id="about" class="px-6 py-28">
+  <section id="about" data-quest="about" class="px-6 py-28">
     <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.6fr]">
       <div>
         <div data-reveal>
@@ -108,7 +108,7 @@ const linkedin = derived.profile('linkedin');
   </section>
 
   <!-- Skills -->
-  <section id="skills" class="px-6 py-28">
+  <section id="skills" data-quest="skills" class="px-6 py-28">
     <div class="mx-auto max-w-6xl">
       <div class="grid items-center gap-10 lg:grid-cols-2">
         <div data-reveal>
@@ -133,7 +133,39 @@ const linkedin = derived.profile('linkedin');
         </div>
       </div>
 
-      <div class="mt-16 grid gap-5 md:grid-cols-2">
+      <!-- Character stats -->
+      <div data-reveal class="card mt-16 p-8 sm:p-10">
+        <div class="flex flex-wrap items-baseline justify-between gap-4">
+          <h3 class="font-display text-2xl font-bold">Character stats</h3>
+          <p class="font-mono text-xs text-muted">XP = time spent in production roles</p>
+        </div>
+        <dl class="mt-8 grid gap-x-12 gap-y-5 md:grid-cols-2">
+          {
+            skillStats.map((s, i) => {
+              const years = s.months / 12;
+              return (
+                <div>
+                  <div class="flex items-baseline justify-between gap-4">
+                    <dt class="font-semibold">{s.label}</dt>
+                    <dd class="font-mono text-xs text-muted">
+                      <span class="mr-2 rounded bg-fg/5 px-1.5 py-0.5 text-fg">Lv {Math.max(1, Math.round(years))}</span>
+                      {years >= 1 ? `${years.toFixed(1)} yrs` : `${s.months} mos`}
+                    </dd>
+                  </div>
+                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-fg/10" aria-hidden="true">
+                    <div
+                      class="xp-bar h-full rounded-full bg-gradient-to-r from-violet via-cyan to-lime"
+                      style={`--w:${(s.months / skillStats[0].months) * 100}%;--d:${i}`}
+                    />
+                  </div>
+                </div>
+              );
+            })
+          }
+        </dl>
+      </div>
+
+      <div class="mt-5 grid gap-5 md:grid-cols-2">
         {
           skills.map((s, i) => (
             <article data-reveal style={`--d:${i}`} class="card p-8">
@@ -161,7 +193,7 @@ const linkedin = derived.profile('linkedin');
   </section>
 
   <!-- Experience -->
-  <section id="experience" class="px-6 py-28">
+  <section id="experience" data-quest="experience" class="px-6 py-28">
     <div class="mx-auto max-w-4xl">
       <div data-reveal class="mb-10">
         <p class="eyebrow">Experience</p>
@@ -177,7 +209,7 @@ const linkedin = derived.profile('linkedin');
   <!-- Testimonials -->
   {
     derived.testimonials.length > 0 && (
-      <section id="testimonials" class="px-6 py-28">
+      <section id="testimonials" data-quest="testimonials" class="px-6 py-28">
         <div class="mx-auto max-w-6xl">
           <div data-reveal class="mb-14">
             <p class="eyebrow">Kind words</p>
@@ -264,7 +296,7 @@ const linkedin = derived.profile('linkedin');
   </section>
 
   <!-- Contact -->
-  <section id="contact" class="relative isolate overflow-hidden px-6 py-36">
+  <section id="contact" data-quest="contact" class="relative isolate overflow-hidden px-6 py-36">
     <div aria-hidden="true" class="absolute inset-0 -z-10">
       <div class="animate-aurora absolute top-1/4 left-1/4 size-[40rem] max-w-full rounded-full bg-gradient-to-tr from-violet/30 via-cyan/20 to-lime/20 blur-[120px]"></div>
     </div>

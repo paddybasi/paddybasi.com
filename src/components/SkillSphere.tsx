@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { unlock } from '../lib/quests';
 
 interface Props {
   items: { label: string; group: number }[];
@@ -84,6 +85,7 @@ export default function SkillSphere({ items }: Props) {
       if (!drag) return;
       vel.y = (e.clientX - drag.x) * 0.004;
       vel.x = -(e.clientY - drag.y) * 0.004;
+      if (Math.abs(vel.y) + Math.abs(vel.x) > 0.02) unlock('spin');
       drag = { x: e.clientX, y: e.clientY };
     };
     const up = () => {

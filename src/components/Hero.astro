@@ -76,6 +76,19 @@ const socials = basics.profiles ?? [];
           }
         </ul>
       </div>
+
+      <!-- Discovery cue for Adventure mode (label flips once it's on). -->
+      <button
+        type="button"
+        data-mode-toggle
+        data-reveal
+        style="--d:5"
+        class="group mt-8 inline-flex items-center gap-2 rounded-full border border-dashed border-violet/40 px-4 py-2 font-mono text-xs text-muted transition hover:border-violet hover:text-violet"
+      >
+        <Icon name="sword" class="size-4 text-violet transition group-hover:-rotate-12" />
+        <span class="adventure:hidden">Prefer pixels? Play in Adventure mode →</span>
+        <span class="hidden adventure:inline">Back to standard mode</span>
+      </button>
     </div>
 
     <!-- Interactive 3D scene -->

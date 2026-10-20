@@ -30,6 +30,22 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 - `src/pages/index.astro`: home page sections. `src/pages/blog/`: list and post pages. `rss.xml.ts`, `404.astro`.
 - React islands: `Experience.tsx` (tech filter, `client:visible`), `SkillSphere.tsx` (DOM-projected 3D tag sphere, `client:visible`), `HeroScene.tsx` (three.js / R3F, `client:only="react"` — it uses `document` and WebGL).
 
+## Gamification (quests)
+
+- `src/lib/quests.ts` defines the quests, XP and levels; `unlock(id)` saves to localStorage (`quests`) and fires a `quest:unlock` window event. Level maths is tested in `quests.test.ts`.
+- `QuestHud.tsx` (`client:only`, mounted in Layout) shows the level badge, quest log, toasts and confetti. The Konami code, or completing every quest, triggers "party" mode (`.party main` hue-rotate).
+- Triggers: add `data-quest="<id>"` to an element to unlock it on scroll (observer in Layout); CV clicks, the theme toggle, the experience filter, a sphere drag and an orb click call `unlock()` directly.
+- New quest: add it to `QUESTS`, add its trigger, and keep the top `LEVELS` threshold at or below `MAX_XP` (the test enforces this).
+- "Character stats" bars (`skillStats` in `resume.ts`) = total months of roles whose text mentions each top skill.
+
+## Adventure mode
+
+- An **original** retro-RPG skin (inspired by classic adventure games, but with no Nintendo/Zelda names, logos, sprites or music, on purpose: this is a public professional site). Keep it that way.
+- Off by default (first impressions stay professional). Discovery cues: a "new" dot on the nav sword + one-time callout after 7s (both cleared via localStorage `mode-seen`), and a hero link. `/?mode=adventure` is a shareable link that opens it. Any `[data-mode-toggle]` element toggles it; the `adventure:` Tailwind variant styles content per mode.
+- Toggled by the sword button in Nav: sets `data-mode="adventure"` on `<html>` (saved as localStorage `mode`, restored by the head script), with an iris-wipe View Transition.
+- Styling is all in `global.css` under `[data-mode='adventure']`: palettes for both themes, Pixelify Sans headings (`--font-display` is a real CSS var for this reason), square corners, notched `.card`/`.adv-frame` borders, pixelated images, sword cursor.
+- Islands read the mode via `useRootAttr('mode')` (`src/lib/useRootAttr.ts`): HeroScene swaps palettes; QuestHud shows a pixel-heart life meter (half a heart per quest), a gem/XP counter, typewriter dialogue toasts and an original Web Audio chiptune (localStorage `sound`).
+
 ## Conventions
 
 - **Theming:** colours are CSS variables in `src/styles/global.css`, switched by `data-theme` on `<html>`. Use the tokens (`bg-ink`, `text-fg`, `text-muted`, `border-line`, `text-violet/cyan/lime`, `bg-fg/5` for tints). Never use `white/…` or hard-coded hex in components, or light mode breaks. Use the `dark:` variant for theme-specific tweaks.

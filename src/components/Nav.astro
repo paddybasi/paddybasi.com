@@ -50,6 +50,37 @@ const current = (href: string) => (href.startsWith('/#') ? undefined : path.star
           <Icon name="sun" class="size-5 dark:hidden" />
           <Icon name="moon" class="hidden size-5 dark:block" />
         </button>
+        <div class="relative">
+          <button
+            type="button"
+            data-mode-toggle
+            data-nav-mode
+            aria-label="Adventure mode"
+            aria-pressed="false"
+            class="new-dot relative grid size-10 place-items-center rounded-full text-muted transition hover:bg-fg/5 hover:text-fg aria-pressed:bg-violet/15 aria-pressed:text-violet"
+          >
+            <Icon name="sword" class="size-5" />
+          </button>
+
+          <!-- One-time nudge for first-time visitors (shown by the script below). -->
+          <div
+            data-mode-callout
+            hidden
+            role="dialog"
+            aria-label="Adventure mode"
+            class="quest-panel fixed inset-x-3 top-[4.5rem] rounded-2xl border border-line bg-ink-2/95 p-4 text-left shadow-2xl shadow-violet/30 backdrop-blur-xl sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-4 sm:w-64"
+          >
+            <span aria-hidden="true" class="absolute -top-1.5 right-4 hidden size-3 rotate-45 border-t border-l border-line bg-ink-2 sm:block"></span>
+            <p class="font-mono text-[10px] tracking-widest text-lime uppercase">New · Adventure mode</p>
+            <p class="mt-1.5 text-sm leading-relaxed text-fg/85">Play this CV like a retro RPG: pixel art, a heart meter and chiptune unlocks.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <button type="button" data-mode-toggle class="inline-flex items-center gap-1.5 rounded-full bg-fg px-3.5 py-1.5 text-sm font-semibold text-ink transition hover:bg-cyan">
+                <Icon name="sword" class="size-4" /> Try it
+              </button>
+              <button type="button" data-callout-dismiss class="rounded-full px-3 py-1.5 text-sm text-muted transition hover:text-fg">Not now</button>
+            </div>
+          </div>
+        </div>
         <a
           href="/cv.pdf"
           download={cvFilename}
@@ -142,7 +173,16 @@ const current = (href: string) => (href.startsWith('/#') ? undefined : path.star
 </style>
 
 <script>
+  import { unlock } from '../lib/quests';
+
   const root = document.documentElement;
+
+  /** Run a DOM change through a View Transition where supported; `iris` swaps the cross-fade for an iris wipe. */
+  const transition = (apply: () => void, iris = false) => {
+    if (!('startViewTransition' in document) || matchMedia('(prefers-reduced-motion: reduce)').matches) return apply();
+    root.classList.toggle('iris', iris);
+    document.startViewTransition(apply).finished.finally(() => root.classList.remove('iris'));
+  };
 
   // Theme toggle
   const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
@@ -150,16 +190,72 @@ const current = (href: string) => (href.startsWith('/#') ? undefined : path.star
   syncTheme();
   themeButton.addEventListener('click', () => {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    const apply = () => {
-      root.dataset.theme = next;
-      syncTheme();
-    };
     try {
       localStorage.setItem('theme', next);
     } catch {}
-    // Cross-fade where supported.
-    'startViewTransition' in document && !matchMedia('(prefers-reduced-motion: reduce)').matches ? document.startViewTransition(apply) : apply();
+    unlock('theme');
+    transition(() => {
+      root.dataset.theme = next;
+      syncTheme();
+    });
   });
+
+  // Adventure mode: any [data-mode-toggle] (nav sword, callout, hero link) flips it.
+  const modeButtons = document.querySelectorAll<HTMLButtonElement>('[data-mode-toggle]');
+  const navModeButton = document.querySelector<HTMLButtonElement>('[data-nav-mode]')!;
+  const callout = document.querySelector<HTMLElement>('[data-mode-callout]')!;
+  const syncMode = () => modeButtons.forEach((b) => b.hasAttribute('aria-pressed') && b.setAttribute('aria-pressed', String(root.dataset.mode === 'adventure')));
+  syncMode();
+
+  // Discovery cues: "new" dot on the sword + one-time callout, until tried or dismissed.
+  const SEEN_KEY = 'mode-seen';
+  const seen = () => {
+    try {
+      return root.dataset.mode === 'adventure' || !!localStorage.getItem(SEEN_KEY);
+    } catch {
+      return true; // no storage: don't nag on every page
+    }
+  };
+  const markSeen = () => {
+    try {
+      localStorage.setItem(SEEN_KEY, '1');
+    } catch {}
+    navModeButton.removeAttribute('data-new');
+    callout.hidden = true;
+  };
+  if (!seen()) {
+    navModeButton.setAttribute('data-new', '');
+    // After the quest intro toast (2.5s + 4.2s on screen) so the two nudges don't stack.
+    setTimeout(() => {
+      if (!seen()) callout.hidden = false;
+    }, 7000);
+  }
+  document.querySelector('[data-callout-dismiss]')!.addEventListener('click', () => {
+    markSeen();
+    navModeButton.focus();
+  });
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && !callout.hidden && markSeen());
+
+  modeButtons.forEach((button) =>
+    button.addEventListener('click', (e) => {
+      const on = root.dataset.mode !== 'adventure';
+      try {
+        on ? localStorage.setItem('mode', 'adventure') : localStorage.removeItem('mode');
+      } catch {}
+      // Iris opens from the click point (or the button's centre for keyboard activation).
+      // Measure before markSeen() hides the callout this button may live in.
+      const r = button.getBoundingClientRect();
+      root.style.setProperty('--iris-x', `${e.detail ? e.clientX : r.left + r.width / 2}px`);
+      root.style.setProperty('--iris-y', `${e.detail ? e.clientY : r.top + r.height / 2}px`);
+      markSeen();
+      transition(() => {
+        if (on) root.dataset.mode = 'adventure';
+        else delete root.dataset.mode;
+        syncMode();
+      }, true);
+      if (on) unlock('adventure');
+    }),
+  );
 
   // Mobile menu
   const shell = document.getElementById('site-nav')!;

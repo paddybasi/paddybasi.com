@@ -4,7 +4,8 @@ import { getImage } from 'astro:assets';
 import profileImg from '../assets/profile.png';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { resume } from '../lib/resume';
+import QuestHud from '../components/QuestHud';
+import { cvFilename, resume } from '../lib/resume';
 
 interface Props {
   title?: string;
@@ -75,11 +76,17 @@ const jsonLd = article
     <!-- Runs before paint: avoids a flash of the wrong theme. -->
     <script is:inline>
       (() => {
-        let stored = null;
-        try { stored = localStorage.getItem('theme'); } catch {}
+        let stored = null, mode = null;
+        try { stored = localStorage.getItem('theme'); mode = localStorage.getItem('mode'); } catch {}
+        // Shareable link: /?mode=adventure opens (and remembers) Adventure mode.
+        if (new URLSearchParams(location.search).get('mode') === 'adventure') {
+          mode = 'adventure';
+          try { localStorage.setItem('mode', mode); } catch {}
+        }
         const theme = stored ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         const root = document.documentElement;
         root.dataset.theme = theme;
+        if (mode === 'adventure') root.dataset.mode = mode;
         root.classList.add('js');
       })();
     </script>
@@ -93,8 +100,39 @@ const jsonLd = article
       <slot />
     </main>
     <Footer />
+    <QuestHud client:only="react" cvFilename={cvFilename} />
 
     <script>
+      import { unlock, type QuestId } from '../lib/quests';
+
+      // Quests: elements tagged data-quest unlock once they reach the top 60% of the viewport
+      // (a ratio threshold would never fire for sections taller than the screen).
+      const questIo = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries)
+            if (e.isIntersecting) {
+              unlock((e.target as HTMLElement).dataset.quest as QuestId);
+              questIo.unobserve(e.target);
+            }
+        },
+        { rootMargin: '0px 0px -40% 0px' },
+      );
+      document.querySelectorAll('[data-quest]').forEach((el) => questIo.observe(el));
+
+      // Any CV download link, wherever it lives.
+      document.addEventListener('click', (e) => (e.target as Element).closest?.('a[href="/cv.pdf"]') && unlock('cv'));
+
+      // ↑ ↑ ↓ ↓ ← → ← → B A
+      const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+      let step = 0;
+      document.addEventListener('keydown', (e) => {
+        step = e.key.toLowerCase() === konami[step].toLowerCase() ? step + 1 : e.key === konami[0] ? 1 : 0;
+        if (step === konami.length) {
+          step = 0;
+          unlock('konami');
+        }
+      });
+
       // Reveal-on-scroll.
       const io = new IntersectionObserver(
         (entries) => {

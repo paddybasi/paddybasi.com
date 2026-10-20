@@ -2,23 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles } from '@react-three/drei';
 import { MathUtils, type Group, type Mesh, type MeshPhysicalMaterial } from 'three';
+import { unlock } from '../lib/quests';
+import { useRootAttr } from '../lib/useRootAttr';
 
-type Theme = 'dark' | 'light';
+type Theme = 'dark' | 'light' | 'adventure';
 
 const PALETTE: Record<Theme, { blobs: string[]; rings: [string, string]; sparkles: string; light: number }> = {
   dark: { blobs: ['#6d28d9', '#0e7490', '#4d7c0f'], rings: ['#22d3ee', '#a3e635'], sparkles: '#c4b5fd', light: 1 },
   light: { blobs: ['#8b5cf6', '#06b6d4', '#84cc16'], rings: ['#0891b2', '#65a30d'], sparkles: '#7c3aed', light: 1.6 },
+  // Forest gem, gold rings and fairy-dust sparkles.
+  adventure: { blobs: ['#2f855a', '#b7791f', '#2b6cb0'], rings: ['#f6c744', '#4ade80'], sparkles: '#fde68a', light: 1.3 },
 };
 
 function useTheme(): Theme {
-  const read = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
-  const [theme, setTheme] = useState<Theme>(read);
-  useEffect(() => {
-    const mo = new MutationObserver(() => setTheme(read()));
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => mo.disconnect();
-  }, []);
-  return theme;
+  const theme = useRootAttr('theme');
+  const mode = useRootAttr('mode');
+  return mode === 'adventure' ? 'adventure' : theme === 'dark' ? 'dark' : 'light';
 }
 
 function Blob({ theme, still }: { theme: Theme; still: boolean }) {
@@ -43,7 +42,10 @@ function Blob({ theme, still }: { theme: Theme; still: boolean }) {
       ref={mesh}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
-      onClick={() => setColour((c) => (c + 1) % blobs.length)}
+      onClick={() => {
+        setColour((c) => (c + 1) % blobs.length);
+        unlock('orb');
+      }}
     >
       <icosahedronGeometry args={[1.1, 48]} />
       <MeshDistortMaterial
@@ -65,13 +67,23 @@ function Blob({ theme, still }: { theme: Theme; still: boolean }) {
 function Scene({ theme, still }: { theme: Theme; still: boolean }) {
   const rig = useRef<Group>(null);
   const orbit = useRef<Group>(null);
+  // Cursor position across the whole window (-1…1), so the lean works even off the canvas.
+  const cursor = useRef({ x: 0, y: 0 });
   const { rings, sparkles, light } = PALETTE[theme];
 
-  useFrame((state, delta) => {
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      cursor.current = { x: (e.clientX / innerWidth) * 2 - 1, y: -(e.clientY / innerHeight) * 2 + 1 };
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    return () => window.removeEventListener('pointermove', move);
+  }, []);
+
+  useFrame((_, delta) => {
     // Lean the whole scene towards the cursor.
     if (rig.current) {
-      rig.current.rotation.y = MathUtils.damp(rig.current.rotation.y, state.pointer.x * 0.5, 3, delta);
-      rig.current.rotation.x = MathUtils.damp(rig.current.rotation.x, -state.pointer.y * 0.35, 3, delta);
+      rig.current.rotation.y = MathUtils.damp(rig.current.rotation.y, cursor.current.x * 0.5, 3, delta);
+      rig.current.rotation.x = MathUtils.damp(rig.current.rotation.x, -cursor.current.y * 0.35, 3, delta);
     }
     if (orbit.current && !still) orbit.current.rotation.z += delta * 0.35;
   });
@@ -143,8 +155,6 @@ export default function HeroScene() {
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
         frameloop={!visible ? 'never' : still ? 'demand' : 'always'}
-        eventSource={document.getElementById('top') ?? undefined}
-        eventPrefix="client"
       >
         <Scene theme={theme} still={still} />
       </Canvas>

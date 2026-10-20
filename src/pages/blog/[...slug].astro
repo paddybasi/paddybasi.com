@@ -45,6 +45,8 @@ const { Content } = await render(post);
     <div class="prose prose-lg prose-site mx-auto mt-12 max-w-3xl">
       <Content />
     </div>
+    <!-- Reaching the end of a post completes the "Bookworm" quest. -->
+    <div data-quest="blog" aria-hidden="true" class="h-px"></div>
 
     <!-- Recruiter hook -->
     <aside class="card mx-auto mt-20 max-w-3xl p-8 sm:p-10">

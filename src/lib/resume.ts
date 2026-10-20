@@ -1,5 +1,5 @@
 // Single source of truth: the JSON Resume gist, fetched once at build time.
-import { isAvailable, matchKeywords, orgName, splitNameRole, yearsSince } from './format.ts';
+import { currentMonth, isAvailable, matchKeywords, monthsBetween, orgName, shortTag, splitNameRole, yearsSince } from './format.ts';
 
 const RESUME_URL =
   import.meta.env.RESUME_URL ??
@@ -83,3 +83,14 @@ export const topTags = Object.entries(
   .map(([t]) => t);
 
 export type WorkItem = (typeof derived.work)[number];
+
+/** "Character stats": total months of roles that mention each top skill, most-used first. */
+export const skillStats = topTags
+  .map((tag) => ({
+    label: shortTag(tag),
+    months: derived.work
+      .filter((w) => w.startDate && w.tags.includes(tag))
+      .reduce((sum, w) => sum + monthsBetween(w.startDate!, w.endDate ?? currentMonth()), 0),
+  }))
+  .sort((a, b) => b.months - a.months)
+  .slice(0, 8);

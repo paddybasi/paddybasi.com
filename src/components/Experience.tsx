@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
 import { dateRange, durationLabel, projectName, shortTag } from '../lib/format';
+import { unlock } from '../lib/quests';
 import type { WorkItem } from '../lib/resume';
 
 interface Props {
@@ -26,7 +27,10 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
               key={t ?? 'all'}
               type="button"
               aria-pressed={active}
-              onClick={() => setTag(active ? null : t)}
+              onClick={() => {
+                setTag(active ? null : t);
+                if (t) unlock('filter');
+              }}
               className={`rounded-full border px-4 py-1.5 font-mono text-xs transition ${
                 active
                   ? 'border-transparent bg-fg text-ink'
