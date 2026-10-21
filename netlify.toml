@@ -22,8 +22,9 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Always serve the latest CV after a rebuild.
+# Always serve the latest CV after a rebuild, saved under a fixed name even when opened directly.
 [[headers]]
   for = "/cv.pdf"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+    Content-Disposition = 'attachment; filename="Pardeep-Singh-Basi-CV.pdf"'

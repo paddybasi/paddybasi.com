@@ -54,7 +54,7 @@ async function load(): Promise<Resume> {
 }
 
 export const resume = await load();
-export const cvFilename = `${resume.basics.name.replace(/\s+/g, '-')}-CV.pdf`;
+export const cvFilename = 'Pardeep-Singh-Basi-CV.pdf'; // also set in netlify.toml (Content-Disposition)
 
 const work = resume.work ?? [];
 const keywords = (resume.skills ?? []).flatMap((s) => s.keywords ?? []);

@@ -245,6 +245,19 @@
   100% { box-shadow: 0 0 0 10px transparent; }
 }
 
+/* 100% reward relic (QuestHud.tsx): gentle bob + golden halo. */
+.relic-float { animation: relic-float 2.6s ease-in-out infinite; }
+@keyframes relic-float {
+  50% { transform: translateY(-6px); }
+}
+.relic-glow {
+  background: radial-gradient(closest-side, color-mix(in oklab, #fbbf24 45%, transparent), transparent);
+  animation: relic-glow 2.6s ease-in-out infinite;
+}
+@keyframes relic-glow {
+  50% { filter: drop-shadow(0 0 14px #fbbf24); }
+}
+
 /* ── Adventure mode: an original retro-RPG skin, toggled by data-mode="adventure" on <html> ── */
 :root[data-mode='adventure'] {
   --font-display: 'Pixelify Sans Variable', ui-monospace, monospace;

@@ -9,9 +9,11 @@ interface Props {
 type Toast = { key: number; title: string; detail: string; levelUp?: boolean };
 
 const COLOURS = ['var(--violet)', 'var(--cyan)', 'var(--lime)'];
+const GOLD = ['#f59e0b', '#fde68a', '#fbbf24'];
 const INTRO_KEY = 'quests-intro';
+const RELIC_KEY = 'relic';
 
-function Confetti({ full = false }: { full?: boolean }) {
+function Confetti({ full = false, colours = COLOURS }: { full?: boolean; colours?: string[] }) {
   const pieces = useMemo(
     () =>
       Array.from({ length: full ? 120 : 24 }, (_, i) => ({
@@ -19,9 +21,9 @@ function Confetti({ full = false }: { full?: boolean }) {
         '--y': full ? '105vh' : `${-40 - Math.random() * 110}px`,
         '--r': `${Math.random() * 720 - 360}deg`,
         '--d': `${Math.random() * (full ? 1.2 : 0.15)}s`,
-        background: COLOURS[i % COLOURS.length],
+        background: colours[i % colours.length],
       })),
-    [full],
+    [full, colours],
   );
   return (
     <div
@@ -63,20 +65,26 @@ const soundOn = () => {
 };
 
 let audio: AudioContext | undefined;
-/** Original square-wave arpeggio, synthesised on the fly (no audio files). */
-function playJingle(levelUp = false) {
+const JINGLES = {
+  unlock: [659.25, 783.99, 987.77, 1318.51],
+  levelUp: [523.25, 659.25, 783.99, 1046.5, 1318.51],
+  fanfare: [523.25, 523.25, 523.25, 659.25, 783.99, 659.25, 783.99, 1046.5, 987.77, 1046.5, 1318.51, 1567.98],
+};
+/** Original square-wave arpeggios, synthesised on the fly (no audio files). */
+function playJingle(kind: keyof typeof JINGLES = 'unlock') {
   try {
     audio ??= new AudioContext();
     void audio.resume(); // stays silent if the browser hasn't seen a user gesture yet
-    const notes = levelUp ? [523.25, 659.25, 783.99, 1046.5, 1318.51] : [659.25, 783.99, 987.77, 1318.51];
+    const notes = JINGLES[kind];
+    const step = kind === 'fanfare' ? 0.13 : 0.09;
     const t0 = audio.currentTime + 0.02;
     notes.forEach((freq, i) => {
       const osc = audio!.createOscillator();
       const gain = audio!.createGain();
       osc.type = 'square';
       osc.frequency.value = freq;
-      const start = t0 + i * 0.09;
-      const end = start + (i === notes.length - 1 ? 0.45 : 0.08);
+      const start = t0 + i * step;
+      const end = start + (i === notes.length - 1 ? 0.7 : step - 0.01);
       gain.gain.setValueAtTime(0.0001, start);
       gain.gain.exponentialRampToValueAtTime(0.05, start + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, end);
@@ -114,6 +122,26 @@ function PixelHeart({ fill, id }: { fill: number; id: string }) {
   );
 }
 
+// The 100% reward: an original pixel "Sunstone". '#' gold, '+' highlight.
+const RELIC_ROWS = ['....#....', '....#....', '...#+#...', '..#++##..', '###+#####', '..#####..', '...###...', '....#....', '....#....'];
+const relicPixels = (c: string) => RELIC_ROWS.flatMap((row, y) => [...row].flatMap((ch, x) => (ch === c ? [[x, y]] : [])));
+const Relic = ({ className = 'size-4' }: { className?: string }) => (
+  <svg viewBox="0 0 9 9" className={className} shapeRendering="crispEdges" aria-hidden="true">
+    {(
+      [
+        ['#', '#f59e0b'],
+        ['+', '#fef3c7'],
+      ] as const
+    ).map(([c, fill]) => (
+      <g key={c} fill={fill}>
+        {relicPixels(c).map(([x, y]) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" />
+        ))}
+      </g>
+    ))}
+  </svg>
+);
+
 const Gem = () => (
   <svg viewBox="0 0 5 6" className="h-3.5 w-3" shapeRendering="crispEdges" aria-hidden="true">
     <path d="M2 0h1v1h1v1h1v2H4v1H3v1H2V5H1V4H0V2h1V1h1z" fill="var(--cyan)" />
@@ -128,6 +156,15 @@ export default function QuestHud({ cvFilename }: Props) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [party, setParty] = useState(0);
   const [sound, setSound] = useState(soundOn);
+  const [claimed, setClaimed] = useState(() => {
+    try {
+      return !!localStorage.getItem(RELIC_KEY);
+    } catch {
+      return false;
+    }
+  });
+  const [gold, setGold] = useState(0);
+  const finale = useRef<HTMLDialogElement>(null);
   const adventure = useRootAttr('mode') === 'adventure';
   const shell = useRef<HTMLDivElement>(null);
   const doneRef = useRef(done);
@@ -136,6 +173,20 @@ export default function QuestHud({ cvFilename }: Props) {
   const xp = xpOf(done);
   const { level, title, progress, nextAt } = levelOf(xp);
   const complete = done.size >= QUESTS.length;
+  // Hearts fill in proportion, so the last one is full exactly at 100%.
+  const hearts = Math.ceil(QUESTS.length / 2);
+  const halves = Math.floor((done.size / QUESTS.length) * hearts * 2);
+
+  const claim = () => {
+    try {
+      localStorage.setItem(RELIC_KEY, '1');
+    } catch {}
+    setClaimed(true);
+    setOpen(false);
+    setGold(Date.now());
+    finale.current?.showModal();
+    if (isAdventure() && soundOn()) playJingle('fanfare');
+  };
 
   const toast = (t: Omit<Toast, 'key'>) => {
     const key = Date.now() + Math.random();
@@ -154,7 +205,7 @@ export default function QuestHud({ cvFilename }: Props) {
       setDone(next);
       toast({ title: quest.title, detail: `+${quest.xp} XP · Achievement unlocked` });
       if (after.level > before.level) toast({ title: `Level ${after.level}: ${after.title}`, detail: 'Level up!', levelUp: true });
-      if (isAdventure() && soundOn()) playJingle(after.level > before.level);
+      if (isAdventure() && soundOn()) playJingle(after.level > before.level ? 'levelUp' : 'unlock');
       if (id === 'konami' || next.size === QUESTS.length) {
         setParty(Date.now());
         document.documentElement.classList.add('party');
@@ -197,6 +248,47 @@ export default function QuestHud({ cvFilename }: Props) {
   return (
     <>
       {party > 0 && <Confetti key={party} full />}
+      {gold > 0 && <Confetti key={gold} full colours={GOLD} />}
+
+      {/* 100% finale */}
+      <dialog
+        ref={finale}
+        aria-labelledby="finale-title"
+        onClick={(e) => e.target === e.currentTarget && finale.current?.close()}
+        className={`quest-panel m-auto w-[min(26rem,calc(100vw-2rem))] p-8 text-center text-fg backdrop:bg-ink/70 backdrop:backdrop-blur-sm ${
+          adventure ? 'adv-frame overflow-visible font-display' : 'rounded-3xl border border-line bg-ink-2 shadow-2xl shadow-amber-500/30'
+        }`}
+      >
+        <div className="relic-glow mx-auto grid size-28 place-items-center">
+          <Relic className="relic-float size-20" />
+        </div>
+        <p className="mt-4 font-mono text-[11px] tracking-widest text-muted uppercase">100% complete · {MAX_XP} XP</p>
+        <h2 id="finale-title" className="mt-2 font-display text-3xl font-bold">
+          {adventure ? 'You found the Sunstone!' : 'Legendary completionist'}
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          All {QUESTS.length} achievements, secret one included. You clearly sweat the details, and so do I. Let's talk.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <a
+            href="/#contact"
+            onClick={() => finale.current?.close()}
+            className="rounded-full bg-fg px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-cyan"
+          >
+            Get in touch
+          </a>
+          <a
+            href="/cv.pdf"
+            download={cvFilename}
+            className="rounded-full border border-line px-5 py-2.5 text-sm font-semibold transition hover:bg-fg/5"
+          >
+            Download CV
+          </a>
+        </div>
+        <form method="dialog" className="mt-4">
+          <button className="font-mono text-[11px] text-muted underline-offset-4 hover:text-fg hover:underline">Close</button>
+        </form>
+      </dialog>
 
       {/* Toasts */}
       <div
@@ -245,6 +337,16 @@ export default function QuestHud({ cvFilename }: Props) {
 
       {/* Badge + quest log */}
       <div ref={shell} className="fixed right-4 bottom-4 z-40">
+        {complete && !claimed && !open && (
+          <button
+            type="button"
+            onClick={claim}
+            aria-label="Claim your 100% reward"
+            className="relic-glow absolute right-1 bottom-full mb-3 grid size-14 place-items-center rounded-full"
+          >
+            <Relic className="relic-float size-9" />
+          </button>
+        )}
         {open && (
           <div
             id="quest-log"
@@ -294,10 +396,14 @@ export default function QuestHud({ cvFilename }: Props) {
             <div className="mt-4 border-t border-line pt-4 text-sm">
               {complete ? (
                 <p>
-                  <span className="font-semibold text-lime">100% complete.</span> You found everything. Fancy talking about a role?{' '}
-                  <a href="/#contact" onClick={() => setOpen(false)} className="font-semibold underline decoration-cyan underline-offset-4">
-                    Get in touch
-                  </a>
+                  <span className="font-semibold text-lime">100% complete.</span> You found everything.{' '}
+                  <button
+                    type="button"
+                    onClick={claim}
+                    className="inline-flex items-center gap-1 font-semibold underline decoration-amber-400 underline-offset-4"
+                  >
+                    <Relic /> {claimed ? 'View your reward' : 'Claim your reward'}
+                  </button>
                 </p>
               ) : !done.has('cv') ? (
                 <p className="text-muted">
@@ -316,6 +422,10 @@ export default function QuestHud({ cvFilename }: Props) {
                   onClick={() => {
                     resetQuests();
                     setDone(new Set());
+                    setClaimed(false);
+                    try {
+                      localStorage.removeItem(RELIC_KEY);
+                    } catch {}
                   }}
                   className="font-mono text-[11px] text-muted underline-offset-4 hover:text-fg hover:underline"
                 >
@@ -357,11 +467,12 @@ export default function QuestHud({ cvFilename }: Props) {
         >
           {adventure ? (
             <>
-              {/* Life meter: every quest fills half a heart. */}
-              <span className="flex gap-0.5">
-                {Array.from({ length: Math.ceil(QUESTS.length / 2) }, (_, i) => (
-                  <PixelHeart key={i} id={`heart-${i}`} fill={Math.min(1, Math.max(0, (done.size - i * 2) / 2))} />
+              {/* Life meter, plus the relic once claimed. */}
+              <span className="flex items-center gap-0.5">
+                {Array.from({ length: hearts }, (_, i) => (
+                  <PixelHeart key={i} id={`heart-${i}`} fill={Math.min(1, Math.max(0, (halves - i * 2) / 2))} />
                 ))}
+                {claimed && <Relic className="ml-1 size-4" />}
               </span>
               <span className="flex items-center gap-1.5 font-display text-sm">
                 <Gem /> {String(xp).padStart(3, '0')} <span className="text-xs text-muted">· Lv {level}</span>
@@ -392,7 +503,7 @@ export default function QuestHud({ cvFilename }: Props) {
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="font-display text-sm font-extrabold">{level}</span>
+                {claimed ? <Relic className="size-5" /> : <span className="font-display text-sm font-extrabold">{level}</span>}
               </span>
               <span className="hidden text-left sm:block">
                 <span className="block font-display text-sm leading-tight font-bold">{title}</span>

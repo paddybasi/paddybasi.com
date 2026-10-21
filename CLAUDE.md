@@ -36,6 +36,7 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 - `QuestHud.tsx` (`client:only`, mounted in Layout) shows the level badge, quest log, toasts and confetti. The Konami code, or completing every quest, triggers "party" mode (`.party main` hue-rotate).
 - Triggers: add `data-quest="<id>"` to an element to unlock it on scroll (observer in Layout); CV clicks, the theme toggle, the experience filter, a sphere drag and an orb click call `unlock()` directly.
 - New quest: add it to `QUESTS`, add its trigger, and keep the top `LEVELS` threshold at or below `MAX_XP` (the test enforces this).
+- 100% reward: a pulsing pixel "Sunstone" relic (original, not Triforce) appears above the badge; claiming it opens a `<dialog>` finale with gold confetti and a fanfare (Adventure + sound), and the relic then stays in the badge (localStorage `relic`, cleared by Reset progress). Hearts fill proportionally so they are full exactly at 100%.
 - "Character stats" bars (`skillStats` in `resume.ts`) = total months of roles whose text mentions each top skill.
 
 ## Adventure mode
