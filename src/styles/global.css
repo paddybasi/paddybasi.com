@@ -8,6 +8,21 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @custom-variant adventure (&:where([data-mode='adventure'], [data-mode='adventure'] *));
 
+/* Page transitions: native cross-document View Transitions (no JS; unsupported browsers just navigate).
+   The nav holds still, and a post card's title morphs into the post heading (view-transition-name set inline). */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+#site-nav {
+  view-transition-name: site-nav;
+}
+/* The Adventure-mode iris wipe is a single full-page snapshot. */
+html.iris * {
+  view-transition-name: none !important;
+}
+
 /* Palette per theme. The inline script in Layout sets data-theme before first paint. */
 :root,
 :root[data-theme='light'] {

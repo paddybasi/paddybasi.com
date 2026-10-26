@@ -47,6 +47,12 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 - Styling is all in `global.css` under `[data-mode='adventure']`: palettes for both themes, Pixelify Sans headings (`--font-display` is a real CSS var for this reason), square corners, notched `.card`/`.adv-frame` borders, pixelated images, sword cursor.
 - Islands read the mode via `useRootAttr('mode')` (`src/lib/useRootAttr.ts`): HeroScene swaps palettes; QuestHud shows a pixel-heart life meter (half a heart per quest), a gem/XP counter, typewriter dialogue toasts and an original Web Audio chiptune (localStorage `sound`).
 
+## Page transitions and prefetch
+
+- Native cross-document View Transitions (`@view-transition` in `global.css`, reduced-motion only): no `<ClientRouter />`, so page scripts run normally on every load. Don't add the client router without reworking every inline script for `astro:page-load`.
+- `#site-nav` holds still; a post's title morphs from its card (`PostCard.astro`) into the post `h1` via a matching inline `view-transition-name: post-<id>`. Names must be unique per page. They are all disabled during the Adventure-mode iris wipe (`html.iris *`).
+- Prefetch is opt-in (`prefetch` in `astro.config.mjs`): blog links carry `data-astro-prefetch` (`hover` by default, `viewport` on post cards and prev/next). Don't prefetch `/cv.pdf`.
+
 ## Conventions
 
 - **Theming:** colours are CSS variables in `src/styles/global.css`, switched by `data-theme` on `<html>`. Use the tokens (`bg-ink`, `text-fg`, `text-muted`, `border-line`, `text-violet/cyan/lime`, `bg-fg/5` for tints). Never use `white/…` or hard-coded hex in components, or light mode breaks. Use the `dark:` variant for theme-specific tweaks.
