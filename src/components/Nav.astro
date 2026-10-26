@@ -6,7 +6,7 @@ const links = [
   ['About', '/#about'],
   ['Skills', '/#skills'],
   ['Experience', '/#experience'],
-  ['Blog', '/blog'],
+  ['Blog', '/blog/'],
   ['Contact', '/#contact'],
 ];
 const path = Astro.url.pathname;
@@ -30,7 +30,7 @@ const current = (href: string) => (href.startsWith('/#') ? undefined : path.star
             <li>
               <a
                 href={href}
-                data-astro-prefetch={href === '/blog' ? '' : undefined}
+                data-astro-prefetch={href === '/blog/' ? '' : undefined}
                 aria-current={current(href)}
                 class="rounded-full px-3 py-1.5 transition hover:bg-fg/5 hover:text-fg aria-[current=page]:bg-fg/10 aria-[current=page]:text-fg"
               >
@@ -115,7 +115,7 @@ const current = (href: string) => (href.startsWith('/#') ? undefined : path.star
               <li style={`--i:${i}`}>
                 <a
                   href={href}
-                  data-astro-prefetch={href === '/blog' ? '' : undefined}
+                  data-astro-prefetch={href === '/blog/' ? '' : undefined}
                   aria-current={current(href)}
                   class="flex items-center justify-between rounded-2xl px-3 py-3 font-display text-2xl font-semibold tracking-tight transition hover:bg-fg/5 aria-[current=page]:text-cyan"
                 >

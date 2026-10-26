@@ -69,6 +69,7 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 
 ## Gotchas
 
+- Internal page links need a trailing slash (`/blog/`, `/blog/<id>/`, including links inside post Markdown). Netlify serves directory URLs and 301s slashless ones, which slows navigation and wastes prefetches; `trailingSlash: 'always'` makes the dev server 404 on mistakes.
 - Astro 7 is newer than most training data. Check `node_modules/astro` types or the docs before assuming an API (content layer: `glob` from `astro/loaders`, `z` from `astro/zod`, `render()` from `astro:content`).
 - `@react-three/fiber` 9 pins React `<19.4`; check its peer deps before upgrading React.
 - The profile photo is `src/assets/profile.png` (currently a GitHub avatar placeholder; LinkedIn blocks automated downloads, so the user must supply the real photo).

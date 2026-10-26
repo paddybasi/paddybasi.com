@@ -6,6 +6,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://paddybasi.com',
+  // Matches the URLs Netlify serves (/blog/ not /blog), so links don't 301.
+  trailingSlash: 'always',
   integrations: [react(), sitemap()],
   // Opt-in per link with data-astro-prefetch (used on blog links only).
   prefetch: { defaultStrategy: 'hover' },

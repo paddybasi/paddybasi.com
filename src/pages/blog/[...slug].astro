@@ -27,7 +27,7 @@ const { Content } = await render(post);
 <Layout title={`${title} · ${resume.basics.name}`} {description} article={{ published: pubDate, updated: updatedDate, tags }}>
   <article class="px-6 pt-36 pb-20">
     <header class="mx-auto max-w-3xl">
-      <a href="/blog" data-astro-prefetch class="inline-flex items-center gap-2 text-sm text-muted transition hover:text-fg">
+      <a href="/blog/" data-astro-prefetch class="inline-flex items-center gap-2 text-sm text-muted transition hover:text-fg">
         <Icon name="back" class="size-4" /> All posts
       </a>
       <p class="mt-10 font-mono text-xs text-cyan">
@@ -69,13 +69,13 @@ const { Content } = await render(post);
       (newer || older) && (
         <nav aria-label="More posts" class="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
           {older && (
-            <a href={`/blog/${older.id}`} data-astro-prefetch="viewport" class="card p-6">
+            <a href={`/blog/${older.id}/`} data-astro-prefetch="viewport" class="card p-6">
               <span class="font-mono text-xs text-muted">← Older</span>
               <span class="mt-2 block font-display text-lg font-bold">{older.data.title}</span>
             </a>
           )}
           {newer && (
-            <a href={`/blog/${newer.id}`} data-astro-prefetch="viewport" class="card p-6 text-right sm:col-start-2">
+            <a href={`/blog/${newer.id}/`} data-astro-prefetch="viewport" class="card p-6 text-right sm:col-start-2">
               <span class="font-mono text-xs text-muted">Newer →</span>
               <span class="mt-2 block font-display text-lg font-bold">{newer.data.title}</span>
             </a>

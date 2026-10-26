@@ -62,4 +62,4 @@ All three run in **GitHub Actions** on every pull request. Turning the prototype
 
 ## Local development that mirrors the cloud
 
-Finally, docker-compose and the official emulators gave every developer a local Firestore and Storage, so nobody needed cloud credentials to work on a feature. I've written that setup up separately in [mirroring the cloud locally](/blog/mirroring-the-cloud-locally).
+Finally, docker-compose and the official emulators gave every developer a local Firestore and Storage, so nobody needed cloud credentials to work on a feature. I've written that setup up separately in [mirroring the cloud locally](/blog/mirroring-the-cloud-locally/).
