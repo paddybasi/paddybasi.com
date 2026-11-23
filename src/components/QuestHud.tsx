@@ -262,7 +262,7 @@ export default function QuestHud({ cvFilename }: Props) {
         <div className="relic-glow mx-auto grid size-28 place-items-center">
           <Relic className="relic-float size-20" />
         </div>
-        <p className="mt-4 font-mono text-[11px] tracking-widest text-muted uppercase">100% complete · {MAX_XP} XP</p>
+        <p className="mt-4 font-mono text-2xs tracking-widest text-muted uppercase">100% complete · {MAX_XP} XP</p>
         <h2 id="finale-title" className="mt-2 font-display text-3xl font-bold">
           {adventure ? 'You found the Sunstone!' : 'Legendary completionist'}
         </h2>
@@ -286,7 +286,7 @@ export default function QuestHud({ cvFilename }: Props) {
           </a>
         </div>
         <form method="dialog" className="mt-4">
-          <button className="font-mono text-[11px] text-muted underline-offset-4 hover:text-fg hover:underline">Close</button>
+          <button className="font-mono text-2xs text-muted underline-offset-4 hover:text-fg hover:underline">Close</button>
         </form>
       </dialog>
 
@@ -322,12 +322,12 @@ export default function QuestHud({ cvFilename }: Props) {
             >
               <Confetti />
               <span
-                className={`grid size-10 shrink-0 place-items-center rounded-xl ${t.levelUp ? 'bg-gradient-to-br from-violet via-cyan to-lime text-ink' : 'bg-lime/15 text-lime'}`}
+                className={`grid size-10 shrink-0 place-items-center rounded-xl ${t.levelUp ? 'bg-cyan text-ink' : 'bg-lime/15 text-lime'}`}
               >
                 <Trophy className="size-5" />
               </span>
               <span className="min-w-0">
-                <span className="block font-mono text-[10px] tracking-widest text-muted uppercase">{t.detail}</span>
+                <span className="block font-mono text-2xs tracking-widest text-muted uppercase">{t.detail}</span>
                 <span className="block truncate font-display font-bold">{t.title}</span>
               </span>
             </div>
@@ -364,7 +364,7 @@ export default function QuestHud({ cvFilename }: Props) {
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-fg/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-violet via-cyan to-lime transition-[width] duration-700"
+                className="h-full rounded-full bg-cyan transition-[width] duration-700"
                 style={{ width: `${(xp / MAX_XP) * 100}%` }}
               />
             </div>
@@ -427,7 +427,7 @@ export default function QuestHud({ cvFilename }: Props) {
                       localStorage.removeItem(RELIC_KEY);
                     } catch {}
                   }}
-                  className="font-mono text-[11px] text-muted underline-offset-4 hover:text-fg hover:underline"
+                  className="font-mono text-2xs text-muted underline-offset-4 hover:text-fg hover:underline"
                 >
                   Reset progress
                 </button>
@@ -443,7 +443,7 @@ export default function QuestHud({ cvFilename }: Props) {
                       } catch {}
                       if (next) playJingle();
                     }}
-                    className="font-mono text-[11px] text-muted underline-offset-4 hover:text-fg hover:underline"
+                    className="font-mono text-2xs text-muted underline-offset-4 hover:text-fg hover:underline"
                   >
                     Sound: {sound ? 'on' : 'off'}
                   </button>
@@ -488,26 +488,19 @@ export default function QuestHud({ cvFilename }: Props) {
                     cy="22"
                     r="18"
                     fill="none"
-                    stroke="url(#quest-grad)"
+                    stroke="var(--cyan)"
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray={ring}
                     strokeDashoffset={ring * (1 - progress)}
                     className="transition-[stroke-dashoffset] duration-700"
                   />
-                  <defs>
-                    <linearGradient id="quest-grad">
-                      <stop offset="0" stopColor="var(--violet)" />
-                      <stop offset=".5" stopColor="var(--cyan)" />
-                      <stop offset="1" stopColor="var(--lime)" />
-                    </linearGradient>
-                  </defs>
                 </svg>
                 {claimed ? <Relic className="size-5" /> : <span className="font-display text-sm font-extrabold">{level}</span>}
               </span>
               <span className="hidden text-left sm:block">
                 <span className="block font-display text-sm leading-tight font-bold">{title}</span>
-                <span className="block font-mono text-[10px] text-muted">{nextAt ? `${xp}/${nextAt} XP` : `${xp} XP · max level`}</span>
+                <span className="block font-mono text-2xs text-muted">{nextAt ? `${xp}/${nextAt} XP` : `${xp} XP · max level`}</span>
               </span>
             </>
           )}

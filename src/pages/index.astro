@@ -6,7 +6,7 @@ import Icon from '../components/Icon.astro';
 import PostCard from '../components/PostCard.astro';
 import Experience from '../components/Experience';
 import SkillSphere from '../components/SkillSphere';
-import profileImg from '../assets/profile.png';
+import profileImg from '../assets/paddybasi.jpg';
 import { getPosts } from '../lib/blog';
 import { dateRange, shortTag } from '../lib/format';
 import { cvFilename, derived, resume, skillStats, topTags } from '../lib/resume';
@@ -39,11 +39,11 @@ const linkedin = derived.profile('linkedin');
   <section aria-label="At a glance" class="border-y border-line bg-ink-2/50">
     <dl class="mx-auto grid max-w-6xl grid-cols-2 divide-line px-6 md:grid-cols-4 md:divide-x">
       {
-        stats.map(([value, label], i) => (
-          <div data-reveal style={`--d:${i}`} class="px-4 py-10 text-center">
+        stats.map(([value, label]) => (
+          <div class="px-4 py-10 text-center">
             <dt class="sr-only">{label}</dt>
             <dd>
-              <span class="block font-display text-5xl font-extrabold tracking-tight text-gradient">{value}</span>
+              <span class="block font-display text-5xl font-extrabold tracking-tight">{value}</span>
               <span class="mt-2 block text-sm text-muted" aria-hidden="true">
                 {label}
               </span>
@@ -68,12 +68,12 @@ const linkedin = derived.profile('linkedin');
         <div data-reveal>
           <p class="eyebrow">About</p>
           <h2 class="mt-4 font-display text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-            Hands-on engineer, <span class="text-gradient">architectural thinker.</span>
+            Hands-on engineer, architectural thinker.
           </h2>
         </div>
-        <figure data-reveal style="--d:1" class="card mt-10 max-w-sm overflow-hidden p-3">
+        <figure class="card mt-10 max-w-sm overflow-hidden p-3">
           <div class="relative overflow-hidden rounded-[1.1rem]">
-            <Image src={profileImg} alt={`Portrait of ${basics.name}`} class="aspect-square w-full object-cover" widths={[360, 720]} sizes="(min-width: 1024px) 360px, 90vw" />
+            <Image src={profileImg} alt={`Portrait of ${basics.name}`} class="aspect-square w-full object-cover" widths={[360, 400]} sizes="(min-width: 1024px) 360px, 90vw" />
             <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent p-5 pt-16">
               <p class="font-display text-xl font-bold">{basics.name}</p>
               <p class="flex items-center gap-1.5 text-sm text-muted"><Icon name="pin" class="size-4" /> {derived.location}</p>
@@ -81,7 +81,7 @@ const linkedin = derived.profile('linkedin');
           </div>
         </figure>
       </div>
-      <div data-reveal style="--d:1" class="space-y-6 text-lg leading-relaxed text-fg/80 lg:pt-4">
+      <div class="space-y-6 text-lg leading-relaxed text-fg/80 lg:pt-4">
         {basics.summary?.split(/(?<=\.)\s+(?=[A-Z])/).map((p) => <p>{p}</p>)}
         {
           interests.length > 0 && (
@@ -120,7 +120,7 @@ const linkedin = derived.profile('linkedin');
             }
           </ul>
         </div>
-        <div data-reveal style="--d:1" class="mx-auto w-full max-w-xl">
+        <div class="mx-auto w-full max-w-xl">
           <SkillSphere client:visible items={sphereItems} />
         </div>
       </div>
@@ -136,20 +136,19 @@ const linkedin = derived.profile('linkedin');
             skillStats.map((s, i) => {
               const years = s.months / 12;
               return (
-                <div>
-                  <div class="flex items-baseline justify-between gap-4">
-                    <dt class="font-semibold">{s.label}</dt>
-                    <dd class="font-mono text-xs text-muted">
-                      <span class="mr-2 rounded bg-fg/5 px-1.5 py-0.5 text-fg">Lv {Math.max(1, Math.round(years))}</span>
-                      {years >= 1 ? `${years.toFixed(1)} yrs` : `${s.months} mos`}
-                    </dd>
-                  </div>
-                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-fg/10" aria-hidden="true">
-                    <div
-                      class="xp-bar h-full rounded-full bg-gradient-to-r from-violet via-cyan to-lime"
-                      style={`--w:${(s.months / skillStats[0].months) * 100}%;--d:${i}`}
-                    />
-                  </div>
+                <div class="relative flex items-baseline justify-between gap-4 pb-4.5">
+                  <dt class="font-semibold">{s.label}</dt>
+                  <dd class="font-mono text-xs text-muted">
+                    <span class="mr-2 rounded bg-fg/5 px-1.5 py-0.5 text-fg">Lv {Math.max(1, Math.round(years))}</span>
+                    {years >= 1 ? `${years.toFixed(1)} yrs` : `${s.months} mos`}
+                    {/* Inside the dd (a dl group may only hold dt/dd), pinned under the row. */}
+                    <div class="absolute inset-x-0 bottom-0 h-2.5 overflow-hidden rounded-full bg-fg/10" aria-hidden="true">
+                      <div
+                        class="xp-bar h-full rounded-full bg-cyan"
+                        style={`--w:${(s.months / skillStats[0].months) * 100}%;--d:${i}`}
+                      />
+                    </div>
+                  </dd>
                 </div>
               );
             })
@@ -159,8 +158,8 @@ const linkedin = derived.profile('linkedin');
 
       <div class="mt-5 grid gap-5 md:grid-cols-2">
         {
-          skills.map((s, i) => (
-            <article data-reveal style={`--d:${i}`} class="card p-8">
+          skills.map((s) => (
+            <article class="card p-8">
               <div class="flex items-baseline justify-between gap-4">
                 <h3 class="font-display text-2xl font-bold">{s.name}</h3>
                 {s.level && <span class="font-mono text-xs text-lime">{s.level}</span>}
@@ -190,7 +189,7 @@ const linkedin = derived.profile('linkedin');
       <div data-reveal class="mb-10">
         <p class="eyebrow">Experience</p>
         <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-          {derived.years} years of <span class="text-gradient">shipping real products.</span>
+          {derived.years} years of shipping real products.
         </h2>
         <p class="mt-4 text-muted">Filter by technology to see where I've used it in production.</p>
       </div>
@@ -208,8 +207,8 @@ const linkedin = derived.profile('linkedin');
             <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">What colleagues say.</h2>
           </div>
           <div class="columns-1 gap-5 md:columns-2 lg:columns-3">
-            {derived.testimonials.map((t, i) => (
-              <figure data-reveal style={`--d:${i % 3}`} class="card mb-5 break-inside-avoid p-8">
+            {derived.testimonials.map((t) => (
+              <figure class="card mb-5 break-inside-avoid p-8">
                 <Icon name="quote" class="size-8 text-violet" />
                 <blockquote class="mt-4 text-lg leading-relaxed text-fg/90">{t.quote}</blockquote>
                 <figcaption class="mt-6 border-t border-line pt-4">
@@ -239,8 +238,8 @@ const linkedin = derived.profile('linkedin');
             </a>
           </div>
           <div class="grid gap-5 md:grid-cols-3">
-            {latestPosts.map((post, i) => (
-              <PostCard post={post} delay={i} />
+            {latestPosts.map((post) => (
+              <PostCard post={post} />
             ))}
           </div>
         </div>
@@ -258,11 +257,11 @@ const linkedin = derived.profile('linkedin');
       <div class="grid gap-5 md:grid-cols-2">
         {
           education.map((e, i) => (
-            <article data-reveal style={`--d:${i}`} class:list={['card p-8', i === 0 && 'md:col-span-2 md:p-10']}>
+            <article class:list={['card p-8', i === 0 && 'md:col-span-2 md:p-10']}>
               <p class="font-mono text-xs text-cyan">{dateRange(e.startDate, e.endDate)}</p>
               <h3 class:list={['mt-3 font-display font-bold', i === 0 ? 'text-3xl' : 'text-xl']}>
                 {[e.studyType, e.area].filter(Boolean).join(' · ')}
-                {e.score && <span class="ml-2 rounded-md bg-lime/15 px-2 py-0.5 align-middle font-mono text-sm text-lime">{e.score}</span>}
+                {e.score && <span class="ml-2 rounded-md border border-lime/40 px-2 py-0.5 align-middle font-mono text-sm text-lime">{e.score}</span>}
               </h3>
               <p class="mt-1 text-muted">
                 {e.url ? (

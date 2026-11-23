@@ -15,6 +15,8 @@ export interface Work {
   endDate?: string;
   summary?: string;
   highlights?: string[];
+  /** Technologies used in this role (extra field; JSON Resume work items allow it). Overrides auto-matched tags. */
+  keywords?: string[];
 }
 export interface Education {
   institution: string;
@@ -35,6 +37,8 @@ export interface Resume {
     phone?: string;
     url?: string;
     summary?: string;
+    /** Security clearance status (extra field), e.g. "SC cleared (expires 2031)". Shown as a neutral badge. */
+    clearance?: string;
     location?: { city?: string; region?: string; countryCode?: string };
     profiles?: Profile[];
   };
@@ -61,7 +65,8 @@ const keywords = (resume.skills ?? []).flatMap((s) => s.keywords ?? []);
 const workText = (w: Work) => [w.position, w.summary, ...(w.highlights ?? [])].join(' ');
 
 export const derived = {
-  work: work.map((w) => ({ ...w, org: orgName(w.name), tags: matchKeywords(workText(w), keywords) })),
+  // A role's own `keywords` win; roles without them fall back to skill keywords found in their text.
+  work: work.map((w) => ({ ...w, org: orgName(w.name), tags: w.keywords?.length ? w.keywords : matchKeywords(workText(w), keywords) })),
   years: yearsSince(work.map((w) => w.startDate)),
   available: isAvailable(work),
   publicSector: new Set(work.filter((w) => w.url?.includes('gov.uk')).map((w) => orgName(w.name))).size,
@@ -74,9 +79,9 @@ export const derived = {
   profile: (network: string) => resume.basics.profiles?.find((p) => p.network.toLowerCase() === network.toLowerCase()),
 };
 
-/** Keywords ranked by how many roles mention them; drives the experience filter. */
+/** Skill keywords ranked by how many roles use them; drives the experience filter. Role-only tags (e.g. legacy PHP) never feature. */
 export const topTags = Object.entries(
-  derived.work.flatMap((w) => w.tags).reduce<Record<string, number>>((acc, t) => ((acc[t] = (acc[t] ?? 0) + 1), acc), {}),
+  derived.work.flatMap((w) => w.tags.filter((t) => keywords.includes(t))).reduce<Record<string, number>>((acc, t) => ((acc[t] = (acc[t] ?? 0) + 1), acc), {}),
 )
   .sort((a, b) => b[1] - a[1])
   .slice(0, 12)

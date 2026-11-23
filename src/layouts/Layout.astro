@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
-import profileImg from '../assets/profile.png';
+import profileImg from '../assets/paddybasi.jpg';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import QuestHud from '../components/QuestHud';
@@ -11,17 +11,21 @@ interface Props {
   title?: string;
   description?: string;
   /** Set on blog posts for article metadata. */
-  article?: { published: Date; updated?: Date; tags: string[] };
+  article?: { headline: string; published: Date; updated?: Date; tags: string[] };
+  /** Keep the page out of search results (404). */
+  noindex?: boolean;
 }
 
 const { basics } = resume;
 const {
   title = `${basics.name} · ${basics.label}`,
-  description = basics.summary?.split('. ').slice(0, 2).join('. ') + '.',
+  // First sentence only: search results cut descriptions off at ~160 characters.
+  description = basics.summary?.split('. ')[0].replace(/\.?$/, '.'),
   article,
+  noindex,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const og = await getImage({ src: profileImg, width: 600, format: 'png' });
+const og = await getImage({ src: profileImg, width: 400, format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site);
 
 const person = {
@@ -36,8 +40,9 @@ const jsonLd = article
   ? {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
-      headline: title,
+      headline: article.headline,
       description,
+      image: ogUrl.href,
       datePublished: article.published.toISOString(),
       dateModified: (article.updated ?? article.published).toISOString(),
       keywords: article.tags.join(', '),
@@ -59,7 +64,7 @@ const jsonLd = article
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title={`${basics.name} · Blog`} href="/rss.xml" />
@@ -144,10 +149,7 @@ const jsonLd = article
         },
         { rootMargin: '0px 0px -10% 0px' },
       );
-      const observe = () => document.querySelectorAll('[data-reveal]:not(.in)').forEach((el) => io.observe(el));
-      observe();
-      // React islands render after this runs; pick up their elements too.
-      new MutationObserver(observe).observe(document.body, { childList: true, subtree: true });
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
 
       // Cursor-following glow on cards; 3D tilt only on clickable ones (data-tilt), fine pointers only.
       const tilt = matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches;

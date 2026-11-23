@@ -24,7 +24,7 @@ const { title, description, pubDate, updatedDate, tags } = post.data;
 const { Content } = await render(post);
 ---
 
-<Layout title={`${title} · ${resume.basics.name}`} {description} article={{ published: pubDate, updated: updatedDate, tags }}>
+<Layout title={`${title} · ${resume.basics.name}`} {description} article={{ headline: title, published: pubDate, updated: updatedDate, tags }}>
   <article class="px-6 pt-36 pb-20">
     <header class="mx-auto max-w-3xl">
       <a href="/blog/" data-astro-prefetch class="inline-flex items-center gap-2 text-sm text-muted transition hover:text-fg">
@@ -39,7 +39,7 @@ const { Content } = await render(post);
       <ul class="mt-6 flex flex-wrap gap-1.5">
         {tags.map((t) => <li class="tag">{t}</li>)}
       </ul>
-      <div class="mt-10 h-px bg-gradient-to-r from-violet via-cyan to-transparent"></div>
+      <div class="mt-10 h-px bg-line"></div>
     </header>
 
     <div class="prose prose-lg prose-site mx-auto mt-12 max-w-3xl">

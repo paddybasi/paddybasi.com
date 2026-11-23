@@ -4,14 +4,13 @@ import { formatDate, readingTime, type Post } from '../lib/blog';
 
 interface Props {
   post: Post;
-  delay?: number;
 }
-const { post, delay = 0 } = Astro.props;
+const { post } = Astro.props;
 const { title, description, pubDate, tags } = post.data;
 const vt = `view-transition-name: post-${post.id.replace(/\W/g, '-')}`;
 ---
 
-<article data-reveal data-tilt style={`--d:${delay}`} class="card group flex h-full flex-col p-7">
+<article data-tilt class="card group flex h-full flex-col p-7">
   <p class="font-mono text-xs text-muted">
     <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time> · {readingTime(post.body)}
   </p>

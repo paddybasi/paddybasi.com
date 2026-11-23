@@ -1,8 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import HeroScene from './HeroScene';
-import { shortTag } from '../lib/format';
-import { cvFilename, derived, resume, topTags } from '../lib/resume';
+import { cvFilename, derived, resume } from '../lib/resume';
 
 const { basics } = resume;
 const [first, ...rest] = basics.name.split(' ');
@@ -23,14 +22,22 @@ const socials = basics.profiles ?? [];
   <div class="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1.3fr_1fr]">
     <div class="relative z-10">
       {
-        derived.available && (
-          <p data-reveal class="mb-8 inline-flex items-center gap-2.5 rounded-full border border-lime/30 bg-lime/10 px-4 py-1.5 text-sm text-lime">
-            <span class="relative flex size-2">
-              <span class="absolute inline-flex size-full animate-ping rounded-full bg-lime opacity-75" />
-              <span class="relative inline-flex size-2 rounded-full bg-lime" />
-            </span>
-            Available for new opportunities
-          </p>
+        (derived.available || basics.clearance) && (
+          <div data-reveal class="mb-8 flex flex-wrap gap-2">
+            {derived.available && (
+              <p class="inline-flex items-center gap-2.5 rounded-full border border-lime/30 bg-lime/10 px-4 py-1.5 text-sm text-lime">
+                <span class="relative flex size-2">
+                  <span class="absolute inline-flex size-full animate-ping rounded-full bg-lime opacity-75" />
+                  <span class="relative inline-flex size-2 rounded-full bg-lime" />
+                </span>
+                Available for new opportunities
+              </p>
+            )}
+            {/* Neutral, not lime: lime means a current status, and this may describe a lapsed one. */}
+            {basics.clearance && (
+              <p class="inline-flex items-center rounded-full border border-line bg-fg/5 px-4 py-1.5 text-sm text-muted">{basics.clearance}</p>
+            )}
+          </div>
         )
       }
 
@@ -81,7 +88,7 @@ const socials = basics.profiles ?? [];
         class="group mt-8 inline-flex items-center gap-2 rounded-full border border-dashed border-violet/40 px-4 py-2 font-mono text-xs text-muted transition hover:border-violet hover:text-violet"
       >
         <Icon name="sword" class="size-4 text-violet transition group-hover:-rotate-12" />
-        <span class="adventure:hidden">Prefer pixels? Play in Adventure mode →</span>
+        <span class="adventure:hidden">Prefer pixels? Play in Adventure&nbsp;mode&nbsp;→</span>
         <span class="hidden adventure:inline">Back to standard mode</span>
       </button>
     </div>
@@ -92,14 +99,7 @@ const socials = basics.profiles ?? [];
         <HeroScene client:only="react" />
       </div>
 
-      <div class="pointer-events-none absolute top-[6%] left-0 rounded-2xl border border-line bg-ink/70 px-4 py-3 backdrop-blur-xl">
-        <p class="font-display text-3xl font-bold"><span class="text-gradient">{derived.years}+</span></p>
-        <p class="text-xs text-muted">years shipping</p>
-      </div>
-      <div class="pointer-events-none absolute right-0 bottom-[8%] flex max-w-[15rem] flex-wrap gap-1.5 rounded-2xl border border-line bg-ink/70 p-3 backdrop-blur-xl">
-        {topTags.slice(0, 4).map((t) => <span class="tag">{shortTag(t)}</span>)}
-      </div>
-      <p class="absolute inset-x-0 -bottom-6 text-center font-mono text-[11px] tracking-widest text-muted uppercase">
+      <p class="absolute inset-x-0 -bottom-6 text-center font-mono text-2xs tracking-widest text-muted uppercase">
         <span class="hidden sm:inline">Hover</span><span class="sm:hidden">Tap</span> the orb · {derived.location}
       </p>
     </div>

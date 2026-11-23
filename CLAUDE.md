@@ -17,8 +17,10 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 
 - **All CV content comes from a JSON Resume gist**, fetched once at build time by `src/lib/resume.ts` (top-level await). Never hard-code resume facts in components; read `resume` / `derived` / `topTags`.
 - Gist: https://gist.github.com/paddybasi/e2140aa3e8278ad9b65145f49b4f92d4 (override with `RESUME_URL` env). The build fails loudly if it can't be fetched.
+- Role tech tags come from each work item's `keywords` (a field JSON Resume allows us to add), falling back to skill keywords found in the role's text. The experience filter only offers tags that are also in the top-level `skills` keywords.
+- `basics.clearance` (also an added field) is free text shown as a neutral badge in the hero and the PDF header. It's deliberately not lime, because it can describe a lapsed clearance; keep the wording honest about status.
 - Content changes in the gist only go live after a rebuild (Netlify build hook or a new deploy).
-- `/cv.pdf` is generated at build time by `src/pages/cv.pdf.ts` rendering `src/pdf/CvDocument.tsx` with `@react-pdf/renderer` from the same data. Built-in Helvetica only (no font downloads).
+- `/cv.pdf` is generated at build time by `src/pages/cv.pdf.ts` rendering `src/pdf/CvDocument.tsx` with `@react-pdf/renderer` from the same data. It follows `DESIGN.md` (light palette, site fonts) and lists every role in full (no condensed "earlier career"). Fonts come from the static `@fontsource/*` packages in `node_modules` (react-pdf can't use the variable ones), so nothing is downloaded at build time.
 - Blog posts are Markdown in `src/content/blog/`, schema in `src/content.config.ts`. `draft: true` hides a post from production builds.
 
 ## Layout
@@ -55,8 +57,10 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 
 ## Conventions
 
+Design rationale (token roles, type scale, motion budget, contrast numbers) is in `DESIGN.md`; `docs/design-tokens.json` and `docs/design-preview.html` are snapshots of `global.css` (the CSS wins if they drift). Update `DESIGN.md` when changing a token or utility.
+
 - **Theming:** colours are CSS variables in `src/styles/global.css`, switched by `data-theme` on `<html>`. Use the tokens (`bg-ink`, `text-fg`, `text-muted`, `border-line`, `text-violet/cyan/lime`, `bg-fg/5` for tints). Never use `white/…` or hard-coded hex in components, or light mode breaks. Use the `dark:` variant for theme-specific tweaks.
-- Reusable visual utilities: `card`, `btn` (primary), `btn-ghost` (secondary), `tag` (mono chip), `eyebrow`, `text-gradient`. Use them instead of re-spelling button/tag classes; size tweaks (`btn px-4 py-2 text-sm`) override them. Cards tilt on hover only with `data-tilt` (clickable cards); all cards get the glow. Add `data-reveal` (optionally `style="--d:N"` for stagger) for scroll-in animation.
+- Reusable visual utilities: `card`, `btn` (primary), `btn-ghost` (secondary), `tag` (mono chip), `eyebrow`, `text-gradient`. Use them instead of re-spelling button/tag classes; size tweaks (`btn px-4 py-2 text-sm`) override them. Cards tilt on hover only with `data-tilt` (clickable cards); all cards get the glow. Add `data-reveal` (optionally `style="--d:N"` for stagger) for scroll-in animation, on section headings only (plus the hero load-in and the stats card, whose XP bars fill on `.in`). `text-gradient` is reserved for the hero name and the contact heading; use `text-2xs` for micro text, never `text-[10px]`/`text-[11px]`.
 - Anything animated must respect `prefers-reduced-motion`; 3D components pause when off-screen and render nothing without WebGL.
 - Accessibility basics are non-negotiable: decorative 3D is `aria-hidden`, and the same information must exist as real content (e.g. skill cards next to the sphere).
 - Privacy: don't show the street address; the phone number appears only in the PDF.
@@ -72,4 +76,4 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 - Internal page links need a trailing slash (`/blog/`, `/blog/<id>/`, including links inside post Markdown). Netlify serves directory URLs and 301s slashless ones, which slows navigation and wastes prefetches; `trailingSlash: 'always'` makes the dev server 404 on mistakes.
 - Astro 7 is newer than most training data. Check `node_modules/astro` types or the docs before assuming an API (content layer: `glob` from `astro/loaders`, `z` from `astro/zod`, `render()` from `astro:content`).
 - `@react-three/fiber` 9 pins React `<19.4`; check its peer deps before upgrading React.
-- The profile photo is `src/assets/profile.png` (currently a GitHub avatar placeholder; LinkedIn blocks automated downloads, so the user must supply the real photo).
+- The profile photo is `src/assets/paddybasi.jpg` (400×400, saved by hand from LinkedIn, which blocks automated downloads). `src/pages/profile.jpg.ts` also serves it at the stable URL `/profile.jpg`, which the gist's `basics.image` points to; don't hard-code hashed `/_astro/` image URLs anywhere external. It is deliberately not on the PDF (UK CV convention).

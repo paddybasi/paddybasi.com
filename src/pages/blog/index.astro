@@ -18,7 +18,7 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
     <div class="mx-auto max-w-6xl">
       <p data-reveal class="eyebrow">Blog</p>
       <h1 data-reveal style="--d:1" class="mt-4 font-display text-6xl font-extrabold tracking-tight sm:text-7xl">
-        Notes from <span class="text-gradient">the field.</span>
+        Notes from the field.
       </h1>
       <p data-reveal style="--d:2" class="mt-6 max-w-2xl text-lg text-muted">
         Lessons from building and running real services: Node.js, TypeScript, cloud platforms, testing and the occasional look back.
@@ -32,9 +32,10 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
     </div>
   </section>
 
-  <section class="px-6 pb-28">
+  <section aria-labelledby="posts-heading" class="px-6 pb-28">
+    <h2 id="posts-heading" class="sr-only">All posts</h2>
     <div class="mx-auto grid max-w-6xl gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {posts.map((post, i) => <PostCard post={post} delay={i % 3} />)}
+      {posts.map((post) => <PostCard post={post} />)}
     </div>
   </section>
 </Layout>

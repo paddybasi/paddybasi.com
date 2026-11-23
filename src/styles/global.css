@@ -56,6 +56,7 @@ html.iris * {
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --text-2xs: 0.6875rem; /* the one micro size: tags, HUD captions */
 }
 
 @theme inline {
@@ -139,7 +140,7 @@ html.iris * {
   @apply inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-6 py-3.5 font-semibold transition hover:border-fg/30 hover:bg-fg/10;
 }
 @utility tag {
-  @apply rounded-md bg-fg/5 px-2 py-0.5 font-mono text-[11px] text-muted;
+  @apply rounded-md bg-fg/5 px-2 py-0.5 font-mono text-2xs text-muted;
 }
 
 @utility eyebrow {

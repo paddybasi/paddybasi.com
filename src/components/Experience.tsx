@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import { dateRange, durationLabel, projectName, shortTag } from '../lib/format';
 import { unlock } from '../lib/quests';
 import type { WorkItem } from '../lib/resume';
@@ -6,16 +6,13 @@ import type { WorkItem } from '../lib/resume';
 interface Props {
   work: WorkItem[];
   tags: string[];
-  /** Roles shown before "Show all". */
-  initial?: number;
 }
 
-export default function Experience({ work, tags, initial = 6 }: Props) {
+// Every role is shown in full: a contractor's history is the point, so nothing hides behind a toggle.
+export default function Experience({ work, tags }: Props) {
   const [tag, setTag] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
 
-  const matches = tag ? work.filter((w) => w.tags.includes(tag)) : work;
-  const visible = showAll || tag ? matches : matches.slice(0, initial);
+  const visible = tag ? work.filter((w) => w.tags.includes(tag)) : work;
 
   return (
     <div>
@@ -43,17 +40,17 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
         })}
       </div>
       <p aria-live="polite" className="sr-only">
-        Showing {visible.length} of {matches.length} roles{tag ? ` using ${tag}` : ''}
+        Showing {visible.length} of {work.length} roles{tag ? ` using ${tag}` : ''}
       </p>
 
-      <ol className="relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-gradient-to-b before:from-violet before:via-cyan/50 before:to-transparent sm:space-y-8">
-        {visible.map((w, i) => {
+      <ol className="relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-gradient-to-b before:from-cyan/60 before:to-transparent sm:space-y-8">
+        {visible.map((w) => {
           const project = projectName(w.name);
           return (
-            <li key={`${w.name}-${w.startDate}`} data-reveal style={{ '--d': i % 4 } as CSSProperties} className="relative pl-10">
+            <li key={`${w.name}-${w.startDate}`} className="relative pl-10">
               <span
                 aria-hidden="true"
-                className="absolute top-8 left-0 size-[15px] rounded-full border-2 border-ink bg-gradient-to-br from-violet to-cyan shadow-[0_0_20px] shadow-cyan/50"
+                className="absolute top-8 left-0 size-[15px] rounded-full border-2 border-ink bg-cyan"
               />
               <article className="card p-6 sm:p-8">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono text-xs text-muted">
@@ -77,22 +74,14 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
                 {w.summary && <p className="mt-4 leading-relaxed text-muted">{w.summary}</p>}
 
                 {!!w.highlights?.length && (
-                  <details className="group mt-5">
-                    <summary className="inline-flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-fg/90 transition hover:text-cyan [&::-webkit-details-marker]:hidden">
-                      <span aria-hidden="true" className="grid size-5 place-items-center rounded-full border border-line text-xs transition group-open:rotate-45">
-                        +
-                      </span>
-                      {w.highlights.length} key contributions
-                    </summary>
-                    <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-fg/80">
-                      {w.highlights.map((h) => (
-                        <li key={h} className="flex gap-3">
-                          <span aria-hidden="true" className="mt-2.5 h-px w-3 shrink-0 bg-cyan" />
-                          {h}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
+                  <ul aria-label="Key contributions" className="mt-5 space-y-2.5 text-base leading-relaxed text-fg/80">
+                    {w.highlights.map((h) => (
+                      <li key={h} className="flex gap-3">
+                        <span aria-hidden="true" className="mt-2.5 h-px w-3 shrink-0 bg-cyan" />
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
                 )}
 
                 {!!w.tags.length && (
@@ -112,19 +101,6 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
           );
         })}
       </ol>
-
-      {!tag && matches.length > initial && (
-        <div className="mt-12 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setShowAll((s) => !s)}
-            aria-expanded={showAll}
-            className="btn-ghost"
-          >
-            {showAll ? 'Show fewer roles' : `Show the full journey · ${matches.length - initial} earlier roles`}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

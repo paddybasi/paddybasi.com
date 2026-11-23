@@ -1,0 +1,98 @@
+{
+  "$description": "Snapshot of src/styles/global.css (2026-11-23). Documentation only; the CSS is the source of truth. See DESIGN.md.",
+  "color": {
+    "$type": "color",
+    "light": {
+      "ink": { "$value": "#f6f5fb" },
+      "ink-2": { "$value": "#ffffff" },
+      "fg": { "$value": "#15141d" },
+      "muted": { "$value": "#5a596c" },
+      "violet": { "$value": "#7c3aed" },
+      "cyan": { "$value": "#0e7490" },
+      "lime": { "$value": "#4d7c0f" }
+    },
+    "dark": {
+      "ink": { "$value": "#06060a" },
+      "ink-2": { "$value": "#0d0d16" },
+      "fg": { "$value": "#ecebf3" },
+      "muted": { "$value": "#9b9ab0" },
+      "violet": { "$value": "#a78bfa" },
+      "cyan": { "$value": "#22d3ee" },
+      "lime": { "$value": "#a3e635" }
+    },
+    "adventure-light": {
+      "ink": { "$value": "#efe3bf" },
+      "ink-2": { "$value": "#fbf3dc" },
+      "fg": { "$value": "#2b1d0e" },
+      "muted": { "$value": "#6e5b3c" },
+      "violet": { "$value": "#8a5a12" },
+      "cyan": { "$value": "#22693f" },
+      "lime": { "$value": "#234f8a" }
+    },
+    "adventure-dark": {
+      "ink": { "$value": "#0b1610" },
+      "ink-2": { "$value": "#12251a" },
+      "fg": { "$value": "#f4ecd0" },
+      "muted": { "$value": "#a9b79a" },
+      "violet": { "$value": "#f6c744" },
+      "cyan": { "$value": "#4ade80" },
+      "lime": { "$value": "#7dd3fc" }
+    },
+    "gold": { "$value": "#fbbf24", "$description": "100% reward relic only; same in every palette" },
+    "line": { "$value": "color-mix(in oklab, var(--fg) 10%, transparent)", "$type": "string" }
+  },
+  "font": {
+    "$type": "fontFamily",
+    "display": { "$value": ["Bricolage Grotesque Variable", "ui-sans-serif", "system-ui", "sans-serif"] },
+    "display-adventure": { "$value": ["Pixelify Sans Variable", "ui-monospace", "monospace"] },
+    "sans": { "$value": ["Inter Variable", "ui-sans-serif", "system-ui", "sans-serif"] },
+    "mono": { "$value": ["JetBrains Mono Variable", "ui-monospace", "monospace"] }
+  },
+  "font-size": {
+    "$type": "dimension",
+    "2xs": { "$value": "0.6875rem", "$description": "The only size below xs" },
+    "xs": { "$value": "0.75rem" },
+    "sm": { "$value": "0.875rem" },
+    "base": { "$value": "1rem" },
+    "lg": { "$value": "1.125rem" },
+    "2xl": { "$value": "1.5rem", "$description": "h3" },
+    "4xl": { "$value": "2.25rem", "$description": "h2 mobile" },
+    "5xl": { "$value": "3rem", "$description": "h2 desktop, stats" },
+    "8xl": { "$value": "6rem", "$description": "hero h1 desktop" }
+  },
+  "space": {
+    "$type": "dimension",
+    "unit": { "$value": "0.25rem" },
+    "gutter": { "$value": "1.5rem", "$description": "px-6" },
+    "section-y": { "$value": "7rem", "$description": "py-28" },
+    "card-padding": { "$value": "2rem", "$description": "p-8" },
+    "card-gap": { "$value": "1.25rem", "$description": "gap-5" }
+  },
+  "size": {
+    "$type": "dimension",
+    "container": { "$value": "72rem", "$description": "max-w-6xl" },
+    "container-narrow": { "$value": "56rem", "$description": "max-w-4xl" },
+    "prose": { "$value": "48rem", "$description": "max-w-3xl" }
+  },
+  "radius": {
+    "$type": "dimension",
+    "card": { "$value": "1.5rem" },
+    "panel": { "$value": "1rem" },
+    "tag": { "$value": "0.375rem" },
+    "pill": { "$value": "9999px" },
+    "adventure": { "$value": "0", "$description": "All radii in Adventure mode" }
+  },
+  "motion": {
+    "ease-out": { "$type": "cubicBezier", "$value": [0.2, 0.8, 0.2, 1] },
+    "ease-spring": { "$type": "cubicBezier", "$value": [0.2, 0.9, 0.3, 1.3] },
+    "duration-ui": { "$type": "duration", "$value": "0.4s" },
+    "duration-reveal": { "$type": "duration", "$value": "0.9s" },
+    "stagger": { "$type": "duration", "$value": "90ms" }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "sm": { "$value": "40rem" },
+    "md": { "$value": "48rem", "$description": "Main layout switch: inline nav, 2-col cards" },
+    "lg": { "$value": "64rem", "$description": "Split hero and about" }
+  }
+}
