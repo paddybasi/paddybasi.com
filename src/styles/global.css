@@ -35,6 +35,7 @@ html.iris * {
   --lime: #4d7c0f;
   --glow: rgb(124 58 237 / 0.1);
   --grain: 0.035;
+  --gold: #fbbf24; /* 100% reward accent, same in every theme */
   color-scheme: light;
 }
 :root[data-theme='dark'] {
@@ -66,16 +67,13 @@ html.iris * {
   --color-violet: var(--violet);
   --color-cyan: var(--cyan);
   --color-lime: var(--lime);
+  --color-gold: var(--gold);
 }
 
 @theme {
-  --animate-marquee: marquee 50s linear infinite;
   --animate-aurora: aurora 18s ease-in-out infinite alternate;
   --animate-spin-slow: spin 14s linear infinite;
 
-  @keyframes marquee {
-    to { transform: translateX(-50%); }
-  }
   @keyframes aurora {
     0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
     50% { transform: translate3d(6%, -4%, 0) scale(1.15) rotate(20deg); }
@@ -132,6 +130,16 @@ html.iris * {
     box-shadow: 0 30px 80px -40px color-mix(in oklab, var(--violet) 55%, transparent);
     transition: box-shadow 0.4s, transform 0.12s linear;
   }
+}
+
+@utility btn {
+  @apply inline-flex items-center gap-2 rounded-full bg-fg px-6 py-3.5 font-semibold text-ink transition hover:bg-cyan;
+}
+@utility btn-ghost {
+  @apply inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-6 py-3.5 font-semibold transition hover:border-fg/30 hover:bg-fg/10;
+}
+@utility tag {
+  @apply rounded-md bg-fg/5 px-2 py-0.5 font-mono text-[11px] text-muted;
 }
 
 @utility eyebrow {
@@ -266,11 +274,11 @@ html.iris * {
   50% { transform: translateY(-6px); }
 }
 .relic-glow {
-  background: radial-gradient(closest-side, color-mix(in oklab, #fbbf24 45%, transparent), transparent);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--gold) 45%, transparent), transparent);
   animation: relic-glow 2.6s ease-in-out infinite;
 }
 @keyframes relic-glow {
-  50% { filter: drop-shadow(0 0 14px #fbbf24); }
+  50% { filter: drop-shadow(0 0 14px var(--gold)); }
 }
 
 /* ── Adventure mode: an original retro-RPG skin, toggled by data-mode="adventure" on <html> ── */
@@ -298,9 +306,9 @@ html.iris * {
   --ink-2: #fbf3dc;
   --fg: #2b1d0e;
   --muted: #6e5b3c;
-  --violet: #b7791f;
-  --cyan: #2f855a;
-  --lime: #2b6cb0;
+  --violet: #8a5a12;
+  --cyan: #22693f;
+  --lime: #234f8a;
   --glow: rgb(183 121 31 / 0.12);
 }
 /* Pixelify tops out at 700; heavier weights get faux-bolded and lose legibility. */
@@ -310,6 +318,9 @@ html.iris * {
 }
 /* Square every rounded corner except the soft background glows (blur-[…] / blur-3xl, not backdrop-blur). */
 [data-mode='adventure'] [class*='rounded']:not([class*=' blur-['], [class*='blur-3xl']) {
+  border-radius: 0;
+}
+[data-mode='adventure'] :is(.btn, .btn-ghost, .tag) {
   border-radius: 0;
 }
 [data-mode='adventure'] img {

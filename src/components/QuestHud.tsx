@@ -256,7 +256,7 @@ export default function QuestHud({ cvFilename }: Props) {
         aria-labelledby="finale-title"
         onClick={(e) => e.target === e.currentTarget && finale.current?.close()}
         className={`quest-panel m-auto w-[min(26rem,calc(100vw-2rem))] p-8 text-center text-fg backdrop:bg-ink/70 backdrop:backdrop-blur-sm ${
-          adventure ? 'adv-frame overflow-visible font-display' : 'rounded-3xl border border-line bg-ink-2 shadow-2xl shadow-amber-500/30'
+          adventure ? 'adv-frame overflow-visible font-display' : 'rounded-3xl border border-line bg-ink-2 shadow-2xl shadow-gold/30'
         }`}
       >
         <div className="relic-glow mx-auto grid size-28 place-items-center">
@@ -400,7 +400,7 @@ export default function QuestHud({ cvFilename }: Props) {
                   <button
                     type="button"
                     onClick={claim}
-                    className="inline-flex items-center gap-1 font-semibold underline decoration-amber-400 underline-offset-4"
+                    className="inline-flex items-center gap-1 font-semibold underline decoration-gold underline-offset-4"
                   >
                     <Relic /> {claimed ? 'View your reward' : 'Claim your reward'}
                   </button>

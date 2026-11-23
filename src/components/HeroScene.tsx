@@ -7,11 +7,12 @@ import { useRootAttr } from '../lib/useRootAttr';
 
 type Theme = 'dark' | 'light' | 'adventure';
 
-const PALETTE: Record<Theme, { blobs: string[]; rings: [string, string]; sparkles: string; light: number }> = {
-  dark: { blobs: ['#6d28d9', '#0e7490', '#4d7c0f'], rings: ['#22d3ee', '#a3e635'], sparkles: '#c4b5fd', light: 1 },
-  light: { blobs: ['#8b5cf6', '#06b6d4', '#84cc16'], rings: ['#0891b2', '#65a30d'], sparkles: '#7c3aed', light: 1.6 },
+const NEON = ['#a78bfa', '#22d3ee', '#a3e635'] as const;
+const PALETTE: Record<Theme, { blobs: string[]; rings: [string, string]; sparkles: string; light: number; env: readonly [string, string, string] }> = {
+  dark: { blobs: ['#6d28d9', '#0e7490', '#4d7c0f'], rings: ['#22d3ee', '#a3e635'], sparkles: '#c4b5fd', light: 1, env: NEON },
+  light: { blobs: ['#8b5cf6', '#06b6d4', '#84cc16'], rings: ['#0891b2', '#65a30d'], sparkles: '#7c3aed', light: 1.6, env: NEON },
   // Forest gem, gold rings and fairy-dust sparkles.
-  adventure: { blobs: ['#2f855a', '#b7791f', '#2b6cb0'], rings: ['#f6c744', '#4ade80'], sparkles: '#fde68a', light: 1.3 },
+  adventure: { blobs: ['#2f855a', '#b7791f', '#2b6cb0'], rings: ['#f6c744', '#4ade80'], sparkles: '#fde68a', light: 1.3, env: ['#f6c744', '#4ade80', '#7dd3fc'] },
 };
 
 function useTheme(): Theme {
@@ -69,7 +70,7 @@ function Scene({ theme, still }: { theme: Theme; still: boolean }) {
   const orbit = useRef<Group>(null);
   // Cursor position across the whole window (-1…1), so the lean works even off the canvas.
   const cursor = useRef({ x: 0, y: 0 });
-  const { rings, sparkles, light } = PALETTE[theme];
+  const { rings, sparkles, light, env } = PALETTE[theme];
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -95,9 +96,9 @@ function Scene({ theme, still }: { theme: Theme; still: boolean }) {
       <pointLight position={[-4, -2, 2]} intensity={30} color={rings[0]} />
       {/* Local light-formers instead of a downloaded HDR: no network requests. */}
       <Environment resolution={256}>
-        <Lightformer form="ring" intensity={3} color="#a78bfa" position={[0, 4, -6]} scale={8} />
-        <Lightformer form="rect" intensity={2} color="#22d3ee" position={[-5, 0, 2]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
-        <Lightformer form="rect" intensity={2} color="#a3e635" position={[5, -1, 2]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
+        <Lightformer form="ring" intensity={3} color={env[0]} position={[0, 4, -6]} scale={8} />
+        <Lightformer form="rect" intensity={2} color={env[1]} position={[-5, 0, 2]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
+        <Lightformer form="rect" intensity={2} color={env[2]} position={[5, -1, 2]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
       </Environment>
 
       <group ref={rig}>

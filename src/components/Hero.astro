@@ -14,8 +14,6 @@ const socials = basics.profiles ?? [];
   <!-- Aurora + grid backdrop -->
   <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
     <div class="animate-aurora absolute -top-40 -left-32 size-[38rem] rounded-full bg-violet/25 blur-[120px]"></div>
-    <div class="animate-aurora absolute top-20 right-[-10rem] size-[34rem] rounded-full bg-cyan/20 blur-[120px] [animation-delay:-6s]"></div>
-    <div class="animate-aurora absolute bottom-[-12rem] left-1/3 size-[30rem] rounded-full bg-lime/10 blur-[120px] [animation-delay:-12s]"></div>
     <div
       class="absolute inset-0 bg-[linear-gradient(to_right,var(--color-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-line)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
     >
@@ -48,14 +46,11 @@ const socials = basics.profiles ?? [];
         <a
           href="/cv.pdf"
           download={cvFilename}
-          class="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet via-cyan to-lime px-6 py-3.5 font-semibold text-white shadow-[0_10px_40px_-10px] shadow-cyan/60 transition hover:scale-[1.03] dark:text-ink"
+          class="btn group"
         >
           <Icon name="download" class="size-5 transition group-hover:translate-y-0.5" /> Download CV
         </a>
-        <a
-          href="#contact"
-          class="inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-6 py-3.5 font-semibold backdrop-blur transition hover:border-fg/30 hover:bg-fg/10"
-        >
+        <a href="#contact" class="btn-ghost">
           Get in touch <Icon name="arrow" class="size-4" />
         </a>
         <ul class="ml-1 flex items-center gap-1">
@@ -102,17 +97,11 @@ const socials = basics.profiles ?? [];
         <p class="text-xs text-muted">years shipping</p>
       </div>
       <div class="pointer-events-none absolute right-0 bottom-[8%] flex max-w-[15rem] flex-wrap gap-1.5 rounded-2xl border border-line bg-ink/70 p-3 backdrop-blur-xl">
-        {topTags.slice(0, 4).map((t) => <span class="rounded-full bg-fg/5 px-2.5 py-1 font-mono text-[11px] text-fg/80">{shortTag(t)}</span>)}
+        {topTags.slice(0, 4).map((t) => <span class="tag">{shortTag(t)}</span>)}
       </div>
       <p class="absolute inset-x-0 -bottom-6 text-center font-mono text-[11px] tracking-widest text-muted uppercase">
         <span class="hidden sm:inline">Hover</span><span class="sm:hidden">Tap</span> the orb · {derived.location}
       </p>
     </div>
   </div>
-
-  <a href="#about" aria-label="Scroll to about" class="absolute bottom-8 left-1/2 hidden -translate-x-1/2 text-muted transition hover:text-fg lg:block">
-    <span class="block h-10 w-6 rounded-full border-2 border-current p-1">
-      <span class="mx-auto block h-2 w-1 animate-bounce rounded-full bg-current"></span>
-    </span>
-  </a>
 </section>

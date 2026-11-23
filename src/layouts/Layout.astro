@@ -149,7 +149,7 @@ const jsonLd = article
       // React islands render after this runs; pick up their elements too.
       new MutationObserver(observe).observe(document.body, { childList: true, subtree: true });
 
-      // Cursor-following glow + subtle 3D tilt on cards (fine pointers only).
+      // Cursor-following glow on cards; 3D tilt only on clickable ones (data-tilt), fine pointers only.
       const tilt = matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
       let active: HTMLElement | null = null;
       document.addEventListener('pointermove', (e) => {
@@ -162,7 +162,7 @@ const jsonLd = article
         const y = e.clientY - r.top;
         card.style.setProperty('--x', `${x}px`);
         card.style.setProperty('--y', `${y}px`);
-        if (tilt) {
+        if (tilt && card.hasAttribute('data-tilt')) {
           card.style.setProperty('--rx', `${(0.5 - y / r.height) * 6}deg`);
           card.style.setProperty('--ry', `${(x / r.width - 0.5) * 6}deg`);
         }

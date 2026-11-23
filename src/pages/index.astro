@@ -54,19 +54,11 @@ const linkedin = derived.profile('linkedin');
     </dl>
   </section>
 
-  <!-- Clients marquee -->
-  <section aria-label="Organisations worked with" class="group relative overflow-hidden py-10 [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
-    <div class="animate-marquee flex w-max gap-12 group-hover:[animation-play-state:paused]">
-      {
-        [0, 1].map((copy) => (
-          <ul class="flex shrink-0 gap-12" aria-hidden={copy === 1 ? 'true' : undefined}>
-            {derived.clients.map((c) => (
-              <li class="font-display text-2xl font-semibold whitespace-nowrap text-fg/30 transition hover:text-fg">{c}</li>
-            ))}
-          </ul>
-        ))
-      }
-    </div>
+  <!-- Clients -->
+  <section aria-label="Organisations worked with" class="px-6 py-10">
+    <ul class="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-12 gap-y-4">
+      {derived.clients.map((c) => <li class="font-display text-2xl font-semibold text-muted">{c}</li>)}
+    </ul>
   </section>
 
   <!-- About -->
@@ -97,7 +89,7 @@ const linkedin = derived.profile('linkedin');
               <p class="eyebrow mb-4 text-muted">Away from the keyboard</p>
               <ul class="flex flex-wrap gap-2">
                 {interests.map((i) => (
-                  <li class="rounded-full border border-line px-3.5 py-1.5 text-sm text-muted">{i.name}</li>
+                  <li class="rounded-md border border-line px-3.5 py-1.5 text-sm text-muted">{i.name}</li>
                 ))}
               </ul>
             </div>
@@ -177,7 +169,7 @@ const linkedin = derived.profile('linkedin');
                 {s.keywords?.map((k) => (
                   <li
                     class:list={[
-                      'rounded-lg border px-3 py-1 text-sm',
+                      'rounded-md border px-3 py-1 text-sm',
                       topTags.includes(k) ? 'border-cyan/30 bg-cyan/10 text-cyan' : 'border-line bg-fg/[0.02] text-fg/75',
                     ]}
                   >
@@ -242,7 +234,7 @@ const linkedin = derived.profile('linkedin');
               <p class="eyebrow">Writing</p>
               <h2 class="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">Notes from the field.</h2>
             </div>
-            <a href="/blog/" data-astro-prefetch class="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 font-semibold transition hover:bg-fg/5">
+            <a href="/blog/" data-astro-prefetch class="btn-ghost">
               All posts <Icon name="arrow" class="size-4" />
             </a>
           </div>
@@ -312,29 +304,17 @@ const linkedin = derived.profile('linkedin');
       <div class="mt-12 flex flex-wrap justify-center gap-3">
         {
           basics.email && (
-            <a
-              href={`mailto:${basics.email}`}
-              class="inline-flex max-w-full items-center gap-2 rounded-full bg-fg px-7 py-4 font-semibold break-all text-ink transition hover:scale-[1.03] hover:bg-cyan"
-            >
+            <a href={`mailto:${basics.email}`} class="btn max-w-full break-all">
               <Icon name="mail" class="size-5 shrink-0" /> {basics.email}
             </a>
           )
         }
-        <a
-          href="/cv.pdf"
-          download={cvFilename}
-          class="inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-7 py-4 font-semibold backdrop-blur transition hover:bg-fg/10"
-        >
+        <a href="/cv.pdf" download={cvFilename} class="btn-ghost">
           <Icon name="download" /> Download CV
         </a>
         {
           linkedin && (
-            <a
-              href={linkedin.url}
-              target="_blank"
-              rel="me noopener"
-              class="inline-flex items-center gap-2 rounded-full border border-line bg-fg/5 px-7 py-4 font-semibold backdrop-blur transition hover:bg-fg/10"
-            >
+            <a href={linkedin.url} target="_blank" rel="me noopener" class="btn-ghost">
               <Icon name="linkedin" /> LinkedIn
             </a>
           )

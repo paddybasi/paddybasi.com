@@ -56,7 +56,7 @@ Node >= 22.22 (Astro 7 requirement; see `.nvmrc`, `netlify.toml`).
 ## Conventions
 
 - **Theming:** colours are CSS variables in `src/styles/global.css`, switched by `data-theme` on `<html>`. Use the tokens (`bg-ink`, `text-fg`, `text-muted`, `border-line`, `text-violet/cyan/lime`, `bg-fg/5` for tints). Never use `white/…` or hard-coded hex in components, or light mode breaks. Use the `dark:` variant for theme-specific tweaks.
-- Reusable visual utilities: `card`, `eyebrow`, `text-gradient`. Add `data-reveal` (optionally `style="--d:N"` for stagger) for scroll-in animation.
+- Reusable visual utilities: `card`, `btn` (primary), `btn-ghost` (secondary), `tag` (mono chip), `eyebrow`, `text-gradient`. Use them instead of re-spelling button/tag classes; size tweaks (`btn px-4 py-2 text-sm`) override them. Cards tilt on hover only with `data-tilt` (clickable cards); all cards get the glow. Add `data-reveal` (optionally `style="--d:N"` for stagger) for scroll-in animation.
 - Anything animated must respect `prefers-reduced-motion`; 3D components pause when off-screen and render nothing without WebGL.
 - Accessibility basics are non-negotiable: decorative 3D is `aria-hidden`, and the same information must exist as real content (e.g. skill cards next to the sphere).
 - Privacy: don't show the street address; the phone number appears only in the PDF.

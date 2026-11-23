@@ -100,7 +100,7 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
                     {w.tags.map((t) => (
                       <li
                         key={t}
-                        className={`rounded-md px-2 py-0.5 font-mono text-[11px] ${t === tag ? 'bg-cyan/20 text-cyan' : 'bg-fg/5 text-muted'}`}
+                        className={t === tag ? 'tag bg-cyan/20 text-cyan' : 'tag'}
                       >
                         {shortTag(t)}
                       </li>
@@ -119,7 +119,7 @@ export default function Experience({ work, tags, initial = 6 }: Props) {
             type="button"
             onClick={() => setShowAll((s) => !s)}
             aria-expanded={showAll}
-            className="rounded-full border border-line bg-fg/5 px-6 py-3 font-semibold transition hover:border-fg/30 hover:bg-fg/10"
+            className="btn-ghost"
           >
             {showAll ? 'Show fewer roles' : `Show the full journey · ${matches.length - initial} earlier roles`}
           </button>
